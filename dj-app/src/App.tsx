@@ -5,11 +5,13 @@ import Header from "./components/header";
 import NotFound from "./components/notFound";
 import Home from "./components/home";
 import { AuthProvider } from "./authentication/authContext";
+import Layout from "./components/layout";
 
 function App() {
   return (
     <div className="App">
       <AuthProvider>
+        <Layout>
           <Router>
           <Header />
             <Routes>
@@ -19,6 +21,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
+        </Layout>
       </AuthProvider>
     </div>
   );
