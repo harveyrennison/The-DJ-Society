@@ -26,7 +26,7 @@ const Home = () => {
                     Welcome to The DJ Society
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                    Unite, create, and perform. r DJs meet music enthusiasts.
+                    Unite, create, and perform. Where DJs meet music enthusiasts.
                 </Typography>
                 <Button
                     variant="contained"
