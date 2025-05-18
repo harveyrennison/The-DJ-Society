@@ -6,6 +6,8 @@ import NotFound from "./components/notFound";
 import Home from "./components/home";
 import { AuthProvider } from "./authentication/authContext";
 import Layout from "./components/layout";
+import Login from "./components/login";
+import Register from "./components/register";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
                 <Route index element={<Navigate to="/home" />} />
                 <Route path="home" element={<Home />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
