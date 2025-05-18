@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Profile from "./components/profile";
 import Header from "./components/header";
 import NotFound from "./components/notFound";
+import Home from "./components/home";
 import { AuthProvider } from "./authentication/authContext";
 
 function App() {
@@ -12,7 +13,8 @@ function App() {
           <Router>
           <Header />
             <Routes>
-                <Route index element={<Navigate to="/profile" />} />
+                <Route index element={<Navigate to="/home" />} />
+                <Route path="home" element={<Home />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>

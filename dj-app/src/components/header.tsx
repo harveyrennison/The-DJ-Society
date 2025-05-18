@@ -9,13 +9,13 @@ import {
     Toolbar,
     Typography,
     Button,
-    IconButton,
+    IconButton, 
     Menu,
     MenuItem,
     Divider,
     useTheme
 } from "@mui/material";
-import { ManageAccounts, MusicNote } from "@mui/icons-material";
+import { ManageAccounts, LibraryMusic } from "@mui/icons-material";
 
 const Header = () => {
     const { token, logout } = useAuth();
@@ -49,7 +49,7 @@ const Header = () => {
                             flex: 1
                         }}
                     >
-                        <MusicNote sx={{ mr: 1 }} />
+                        <LibraryMusic sx={{ mr: 1 }} />
                         <Typography
                             variant="h6"
                             component="div"
