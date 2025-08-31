@@ -8,6 +8,7 @@ import { AuthProvider } from "./authentication/authContext";
 import Layout from "./components/layout";
 import Login from "./components/login";
 import Register from "./components/register";
+import AboutUs from "./components/about_us";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Routes>
                 <Route index element={<Navigate to="/home" />} />
                 <Route path="home" element={<Home />} />
+                <Route path="about_us" element={<AboutUs />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
