@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoginResponse, RegisterResponse } from "../types/login";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../authentication/authContext';
-import { validateEmail, validatePassword } from '../utils/validation';
+import { validateEmail, validateUsername, validatePassword } from '../utils/validation';
 
 const Register = () => {
     const navigate = useNavigate();

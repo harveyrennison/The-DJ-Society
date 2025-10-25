@@ -28,30 +28,7 @@ const Home = () => {
                 <Typography variant="h6" gutterBottom>
                     Unite, create, and perform. Where DJs meet music enthusiasts.
                 </Typography>
-                <Button
-                    variant="contained"
-                    size="large"
-                    sx={{ mt: 3,
-                        background: `linear-gradient(120deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
-                        "&:hover": {
-                            boxShadow: 6
-                        },
-                        
-                     }}
-                    onClick={() => navigate("/register")}
-                >
-                    <Typography
-                        component="span"
-                        sx={{
-                        transition: "font-size 0.3s ease",
-                        "&:hover": {
-                            fontSize: "1.1rem",
-                        },
-                        }}
-                    >
-                        Join the Community
-                    </Typography>
-                </Button>
+
             </Box>
         </Box>
     );
