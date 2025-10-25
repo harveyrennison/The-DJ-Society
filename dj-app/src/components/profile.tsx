@@ -178,10 +178,13 @@ const Profile = () => {
                                 ) : (
                                     <>
                                         <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
-                                            {user?.firstName} {user?.lastName}
+                                            {user.firstName} {user.lastName}
                                         </Typography>
+                                        {/* <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                                            {user.username}
+                                        </Typography> */}
 
-                                        {user?.email && (
+                                        {user.email && (
                                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
                                                 <Tooltip title="Email">
                                                     <EmailIcon color="action" sx={{ mr: 1, fontSize: 18 }} />

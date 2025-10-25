@@ -27,6 +27,7 @@ const Register = () => {
         firstName: '',
         lastName: '',
         email: '',
+        username: '',
         password: ''
     });
 
@@ -65,6 +66,10 @@ const Register = () => {
             newErrors.email = 'Please enter a valid email address';
         }
 
+        if (touched.password && !validateUsername(formData.username)) {
+            newErrors.password = 'Username must be at least 4 characters and it must not contain any special characters apart from . and _';
+        }
+
         if (touched.password && !validatePassword(formData.password)) {
             newErrors.password = 'Password must be at least 6 characters';
         }
@@ -95,7 +100,7 @@ const Register = () => {
         });
 
         // Return whether the form is valid
-        return validateEmail(formData.email) && validatePassword(formData.password);
+        return validateEmail(formData.email) && validateUsername(formData.username) && validatePassword(formData.password);
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -114,6 +119,7 @@ const Register = () => {
             const userData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
+                username: formData.username,
                 email: formData.email,
                 password: formData.password
             };
@@ -150,9 +156,9 @@ const Register = () => {
 
                 setSnackOpen(true);
 
-                // Redirect to games page after successful registration
+                // Redirect to home page after successful registration
                 setTimeout(() => {
-                    navigate('/games');
+                    navigate('/home');
                 }, 1500);
             }
         } catch (error: any) {
@@ -238,6 +244,17 @@ const Register = () => {
                         placeholder="example@domain.com"
                         error={!!errors.email}
                         helperText={errors.email}
+                        sx={{ mb: 1 }}
+                    />
+
+                    <TextField
+                        name="username"
+                        label="Username"
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={formData.username}
+                        onChange={handleChange}
                         sx={{ mb: 1 }}
                     />
 

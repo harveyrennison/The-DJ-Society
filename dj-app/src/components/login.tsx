@@ -17,6 +17,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoginResponse } from "../types/login";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../authentication/authContext'; // Import useAuth hook
+import { validateEmail } from '../utils/validation';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -63,11 +64,6 @@ const Login = () => {
 
     const handleTogglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
-    };
-
-    const validateEmail = (email: string): boolean => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
     };
 
     // Run validation whenever form data changes
