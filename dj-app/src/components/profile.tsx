@@ -68,7 +68,6 @@ const Profile = () => {
                 }
 
                 const userData = await getUsername(userId, token) as User;
-                console.log('Profile data received:', userData);
                 setUser(userData);
 
                 // Check if email was received
@@ -180,9 +179,10 @@ const Profile = () => {
                                         <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
                                             {user.firstName} {user.lastName}
                                         </Typography>
-                                        {/* <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                        
+                                        <Typography variant="h6"  sx={{ mb: 1 }}>
                                             {user.username}
-                                        </Typography> */}
+                                        </Typography>
 
                                         {user.email && (
                                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
