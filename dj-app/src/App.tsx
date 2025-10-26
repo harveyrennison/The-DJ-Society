@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Profile from "./components/profile";
-import Header from "./components/header";
+import Header from "./structure/header";
 import NotFound from "./components/notFound";
 import Home from "./components/home";
 import { AuthProvider } from "./authentication/authContext";
-import Layout from "./components/layout";
+import Layout from "./structure/layout";
 import Login from "./components/login";
 import Register from "./components/register";
 import AboutUs from "./components/about_us";

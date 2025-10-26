@@ -39,7 +39,7 @@ const Header = () => {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" elevation={4} sx={{background: `linear-gradient(120deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`}}>
+            <AppBar position="static" elevation={4} sx={{boxShadow : 10}}>
                 <Toolbar>
                     {/* Left section - Logo and title */}
                     <Box
@@ -107,9 +107,6 @@ const Header = () => {
                                     </MenuItem>
                                     <MenuItem onClick={() => handleNavigation("/profile/edit")}>
                                         Settings
-                                    </MenuItem>
-                                    <MenuItem onClick={() => handleNavigation("/my-games")}>
-                                        My Games
                                     </MenuItem>
                                     <Divider />
                                     <MenuItem onClick={handleLogout}>Logout</MenuItem>

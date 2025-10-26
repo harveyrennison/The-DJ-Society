@@ -15,11 +15,8 @@ const Home = () => {
                     textAlign: "center",
                     mb: 6,
                     py: 6,
-                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    borderRadius: 4,
-                    color: "white",
-                    boxShadow: 12,
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+                    color: "black",
+
                 }}
             >
                 <Typography variant="h3" fontWeight="bold" gutterBottom>

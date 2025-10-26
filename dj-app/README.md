@@ -1,46 +1,27 @@
-# Getting Started with Create React App
+# The DJ Society
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Created by Harvey Rennison & Alex McLauchlan
 
-## Available Scripts
+## 🎧 About
 
-In the project directory, you can run:
+The DJ Society is a platform built for people our age who love music and want to start DJing but don’t know where to begin. This site aims to bridge that gap by offering:
 
-### `npm start`
+- 📝 Advice for beginner and intermediate DJs  
+- 🎶 Curated new music recommendations  
+- 🛠 Tips on gear, technique, and setup  
+- 📍 Info on local gigs and events  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Whether you're just curious or ready to jump on the decks, we’ve got something for you.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## 💡 Why?
 
-### `npm test`
+As two beginner DJs freshly into the scene ourselves, we noticed there are *tons* of people who want to get into DJing but don’t know where to start. This site is designed to be a chill, friendly space to learn, share, and grow as a DJ.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+## 🚧 Status
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Early development – content and features are actively being added. 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Stay tuned. Big things coming.
