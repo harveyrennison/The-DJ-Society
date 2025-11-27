@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+eslint*
+Frontend*
+package*
+tsconfig*
+.*
+vite*
