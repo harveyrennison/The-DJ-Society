@@ -1,36 +1,89 @@
+import {
+    Box,
+    CssBaseline
+} from '@mui/material';
+import {
+    ThemeProvider
+} from '@mui/material/styles';
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Profile from "./components/profile";
-import Header from "./structure/header";
-import NotFound from "./components/notFound";
-import Home from "./components/home";
-import { AuthProvider } from "./authentication/authContext";
-import Layout from "./structure/layout";
-import Login from "./components/login";
-import Register from "./components/register";
-import AboutUs from "./components/about_us";
 
-function App() {
+import { Header } from './components/Header';
+import { DJS, MOCK_USER } from './data/mockData';
+import type { DJ, Page, User } from './interfaces/types';
+import { LoginPage } from './pages/Login';
+import { SignupPage } from './pages/Signup';
+import { DirectoryPage } from './pages/Directory';
+import { HomePage, } from './pages/Home';
+import { ProfilePage } from './pages/Profile';
+import { theme } from './theme/theme';
+
+export const App: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [user, setUser] = useState<User | null>(null); // null = guest
+  const [selectedDj, setSelectedDj] = useState<DJ | null>(DJS[0]); // Default to first DJ for initial state check
+
+  // Navigation Handler
+  const handleNavigate = (page: Page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  // Auth Handlers (Mock)
+  const handleLogin = () => {
+    setUser(MOCK_USER);
+    handleNavigate('home');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    handleNavigate('home');
+  };
+
+  const handleViewDj = (dj: DJ) => {
+      setSelectedDj(dj);
+      handleNavigate('dj-profile');
+  };
+
+  const renderPage = () => {
+    // Ensure a DJ is selected before attempting to render ProfilePage
+    if (currentPage === 'dj-profile' && !selectedDj) {
+        return <DirectoryPage onSelectDj={handleViewDj} />;
+    }
+
+    switch (currentPage) {
+      case 'home':
+        return <HomePage onNavigate={handleNavigate} />;
+      case 'directory':
+        return <DirectoryPage onSelectDj={handleViewDj} />;
+      case 'dj-profile':
+        // TypeScript guarantees selectedDj is not null here due to the check above
+        return <ProfilePage dj={selectedDj!} onBack={() => handleNavigate('directory')} isOwner={false} />;
+      case 'profile':
+        // Mocking the logged-in user's profile view
+        const myProfile: DJ = { ...DJS[0], name: user?.name || "Me" }; 
+        return <ProfilePage dj={myProfile} onBack={() => handleNavigate('home')} isOwner={true} />;
+      case 'login':
+        // onSwitch navigates to the signup page
+        return <LoginPage onLogin={handleLogin} onSwitch={() => handleNavigate('signup')} />;
+      case 'signup':
+        // onSwitch navigates to the login page
+        return <SignupPage onLogin={handleLogin} onSwitch={() => handleNavigate('login')} />;
+      default:
+        return <HomePage onNavigate={handleNavigate} />;
+    }
+  };
+
   return (
-    <div className="App">
-      <AuthProvider>
-        <Layout>
-          <Router>
-          <Header />
-            <Routes>
-                <Route index element={<Navigate to="/home" />} />
-                <Route path="home" element={<Home />} />
-                <Route path="about" element={<AboutUs />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Router>
-        </Layout>
-      </AuthProvider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
+        <Header user={user} onNavigate={handleNavigate} onLogout={handleLogout} />
+        <Box component="main" sx={{ pt: { xs: '56px', sm: '64px' } }}>
+          {renderPage()}
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;

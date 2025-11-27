@@ -1,0 +1,10 @@
+// tsconfig.eslint.json
+{
+  // Extend your main application's config
+  "extends": "./tsconfig.app.json", 
+  "include": [
+    "src/**/*", // Include all source files
+    "vite.config.ts",
+    "eslint.config.js" // Include config files for linting
+  ]
+}

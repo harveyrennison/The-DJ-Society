@@ -1,11 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-interface AuthContextType {
-    token: string | null;
-    userId: string | null;
-    login: (token: string, userId: string) => void;
-    logout: () => void;
-}
+import { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { AuthContextType } from '../interfaces/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,4 +34,3 @@ export const useAuth = (): AuthContextType => {
     if (!context) throw new Error('useAuth must be used within an AuthProvider');
     return context;
 };
-
