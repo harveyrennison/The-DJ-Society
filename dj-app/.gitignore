@@ -29,3 +29,4 @@ package*
 tsconfig*
 .*
 vite*
+public
