@@ -18,17 +18,11 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({ onLogoutSuccess, ful
     const handleLogoutClick = async () => {
         setIsLoggingOut(true);
         try {
-            // This function handles the server call (LogoutUser) and local storage cleanup
             await handleClientSideLogout();
-            
-            // Run the callback function provided by the parent (e.g., set user state to null)
             onLogoutSuccess();
-
         } catch (error) {
             console.error("An unexpected error occurred during logout:", error);
-            // Even if there's an unexpected error, clear client state
             onLogoutSuccess(); 
-            
         } finally {
             setIsLoggingOut(false);
         }

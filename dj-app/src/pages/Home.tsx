@@ -90,7 +90,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                             }}>
                                 <CardMedia component="img" height="420" image={FoundryPhoto} alt="DJ" />
                                 <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, p: 2, background: 'linear-gradient(to top, black, transparent)' }}>
-                                    <Typography variant="h6">{DJS[0].name}</Typography>
+                                    <Typography variant="h6">{DJS[0].djName}</Typography>
                                 </Box>
                             </Card>
                             <Card sx={{ 
@@ -105,7 +105,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                             }}>
                                 <CardMedia component="img" height="420" image={BComPhoto} alt="DJ" />
                                 <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, p: 2, background: 'linear-gradient(to top, black, transparent)' }}>
-                                    <Typography variant="h6">{DJS[0].name}</Typography>
+                                    <Typography variant="h6">{DJS[1].djName}</Typography>
                                 </Box>
                             </Card>
                         </Box>

@@ -93,34 +93,38 @@
 // export type UserPublicData = Omit<User, 'password' | 'authToken' | 'email' | 'isHidden'>;
 
 
-export interface Gig {
-  date: string;
-  venue: string;
-  city: string;
-}
+// export interface Gig {
+//   date: string;
+//   venue: string;
+//   city: string;
+// }
 
-export interface Track {
-  title: string;
-  plays: string;
-  duration: string;
-}
-
-export interface DJ {
-  id: number;
-  name: string;
-  handle: string;
-  genre: string;
-  location: string;
-  bio: string;
-  image: string;
-  cover: string;
-  tracks?: Track[];
-  upcoming?: Gig[];
-}
+// export interface Track {
+//   title: string;
+//   plays: string;
+//   duration: string;
+// }
 
 export interface User {
     userId: number;
     email: string;
-    password: string;
-    token: string;
+    isDjProfileComplete: boolean;
+}
+
+export interface DjProfileFormData {
+    djName: string;
+    bio: string;
+    location: string;
+    genres: string[];
+    equipment: string;
+    soundcloudUrl?: string;
+    instagramUrl?: string;
+    avatarFile?: string;
+    bannerFile?: string;
+}
+
+export interface DJ extends DjProfileFormData {
+    djId: number;
+    userId: number;
+    isPublic: boolean;
 }

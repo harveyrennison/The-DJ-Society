@@ -1,5 +1,5 @@
 import type { Page } from "./types";
-import type { User, DJ } from "./userTypes";
+import type { User, DJ, DjProfileFormData } from "./userTypes";
 
 
 export interface HeaderProps {
@@ -30,4 +30,15 @@ export interface AuthPageProps {
 export interface DesktopLogoutMenuItemProps {
     onClose: () => void;
     onOpenConfirm: () => void;
+}
+
+export interface LogoutConfirmationProps {
+    confirmOpen: boolean;
+    handleConfirmClose: () => void;
+    handleConfirmLogout: () => void;
+    isLoggingOut: boolean;
+}
+
+export interface DjProfileBuilderProps {
+    onProfileComplete: (profileData: DjProfileFormData) => void;
 }

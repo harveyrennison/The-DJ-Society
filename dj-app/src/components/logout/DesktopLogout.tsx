@@ -13,9 +13,7 @@ export const DesktopLogoutMenuItem: React.FC<DesktopLogoutMenuItemProps> = ({ on
     };
 
     return (
-        <MenuItem 
-            onClick={handleMenuClick}
-        >
+        <MenuItem onClick={handleMenuClick}>
             <ListItemIcon>
                 <Logout fontSize="small" color="error" />
             </ListItemIcon>
