@@ -89,6 +89,9 @@ export const HeroSection = styled(Box)(({ theme }) => ({
                radial-gradient(circle at 90% 80%, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 40%)`,
 }));
 
+export const HeaderText = styled(Box)(({ }) => ({
+  color: "white"
+}));
 
 // --- 3. SignupSection (Subtle linear gradient using Primary color) ---
 export const AccountSection = styled(Box)(({ theme }) => ({

@@ -164,7 +164,9 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                 </>
               ) : (
                 <>
-                  <Button color="inherit" onClick={() => onNavigate('login')}>Login</Button>
+                  <Button color="inherit" onClick={() => onNavigate('login')}>
+                    <Typography variant="inherit">Login</Typography>
+                  </Button>
                   <Button variant="contained" color="primary" onClick={() => onNavigate('signup')}>Join Now</Button>
                 </>
               )}
