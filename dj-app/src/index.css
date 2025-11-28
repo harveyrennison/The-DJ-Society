@@ -1,13 +1,12 @@
+html,
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  height: 100%; /* Important for allowing child elements to use percentage heights */
+  margin: 0; /* Removes the border/gap around the edge of the screen */
+  padding: 0;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  min-height: 100vh; /* Ensures the container fills the full viewport */
+  display: flex; /* Optional: Helpful for making App content fill the height */
+  flex-direction: column;
 }
