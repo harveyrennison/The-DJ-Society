@@ -72,9 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
   };
 
   const navItems: { label: string, value: Page }[] = [
-    { label: 'Home', value: 'home' },
-    { label: 'Directory', value: 'directory' },
-    { label: 'Events', value: 'events' },
+    { label: 'Home', value: 'home' }
   ];
 
   return (

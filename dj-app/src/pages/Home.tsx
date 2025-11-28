@@ -46,7 +46,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                             variant="contained" 
                             size="large" 
                             endIcon={<PlayArrow />}
-                            onClick={() => onNavigate('directory')}
+                            onClick={() => onNavigate('home')}
                             sx={{ py: 1.5, px: 4 }}
                             >
                                 Explore DJs
@@ -105,7 +105,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                             }}>
                                 <CardMedia component="img" height="420" image={BComPhoto} alt="DJ" />
                                 <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, p: 2, background: 'linear-gradient(to top, black, transparent)' }}>
-                                    <Typography variant="h6">{DJS[1].name}</Typography>
+                                    <Typography variant="h6">{DJS[0].name}</Typography>
                                 </Box>
                             </Card>
                         </Box>
