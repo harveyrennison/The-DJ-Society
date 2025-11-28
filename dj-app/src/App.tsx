@@ -9,12 +9,13 @@ import React, { useState } from 'react';
 
 import { Header } from './components/Header';
 import { DJS, MOCK_USER } from './data/mockData';
-import type { DJ, Page, User } from './interfaces/types';
-import { LoginPage } from './pages/Login';
-import { SignupPage } from './pages/Signup';
+import type { DJ, User } from './interfaces/userTypes';
+import type { Page } from './interfaces/types';
 import { DirectoryPage } from './pages/Directory';
 import { HomePage, } from './pages/Home';
+import { LoginPage } from './pages/Login';
 import { ProfilePage } from './pages/Profile';
+import { SignupPage } from './pages/Register';
 import { theme } from './theme/theme';
 
 export const App: React.FC = () => {
@@ -60,7 +61,7 @@ export const App: React.FC = () => {
         return <ProfilePage dj={selectedDj!} onBack={() => handleNavigate('directory')} isOwner={false} />;
       case 'profile':
         // Mocking the logged-in user's profile view
-        const myProfile: DJ = { ...DJS[0], name: user?.name || "Me" }; 
+        const myProfile: DJ = { ...DJS[0], name: "ZENIATH" }; 
         return <ProfilePage dj={myProfile} onBack={() => handleNavigate('home')} isOwner={true} />;
       case 'login':
         // onSwitch navigates to the signup page

@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { LoginPage } from './Login'; // Assuming these are in the same directory or linked correctly
-import { SignupPage } from './Signup';
+import { SignupPage } from './Register';
 
 // You can define a type for the possible views
 type AuthView = 'login' | 'signup';

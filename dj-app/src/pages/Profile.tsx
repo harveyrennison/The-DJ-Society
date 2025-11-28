@@ -25,7 +25,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import type { Gig, ProfilePageProps, Track } from '../interfaces/types';
+import type { ProfilePageProps } from "../interfaces/props";
+import type { Gig, Track } from '../interfaces/types';
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner }) => {
   // Use optional chaining since tracks/upcoming are optional in the DJ interface

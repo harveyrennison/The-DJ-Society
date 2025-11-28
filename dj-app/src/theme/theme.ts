@@ -89,23 +89,9 @@ export const HeroSection = styled(Box)(({ theme }) => ({
                radial-gradient(circle at 90% 80%, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 40%)`,
 }));
 
-// --- 2. LoginSection (Subtle linear gradient using Secondary color) ---
-export const LoginSection = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '91vh',
-    // Using a linear gradient with low alpha values of the secondary color
-    // creates a subtle, constant, slightly changing color wash.
-    background: `linear-gradient(to bottom right, 
-        ${alpha(theme.palette.secondary.main, 0.04)}, 
-        ${alpha(theme.palette.secondary.main, 0.08)} 50%, 
-        ${alpha(theme.palette.secondary.main, 0.04)}
-    )`,
-}));
 
 // --- 3. SignupSection (Subtle linear gradient using Primary color) ---
-export const SignupSection = styled(Box)(({ theme }) => ({
+export const AccountSection = styled(Box)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

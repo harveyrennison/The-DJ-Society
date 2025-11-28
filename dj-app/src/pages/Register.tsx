@@ -16,24 +16,24 @@ import {
 } from '@mui/material';
 import type { ChangeEvent, FormEvent } from 'react';
 import React, { useState } from 'react';
-import { AccountSection } from '../theme/theme';
 
+import { SIGNUP_LABELS } from '../constants/strings';
 import type { AuthPageProps } from "../interfaces/props";
 // ⚠️ Corrected import path for API Service
-import { LoginUser } from '../session/accountServices'; 
+import { RegisterUser } from '../session/accountServices'; 
 // 🔑 Import the session manager utility
 import { saveSession } from '../session/manager'; 
+import { AccountSection } from '../theme/theme';
 
-
-export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
+export const SignupPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
-        password: ''
+        password: '',
     });
     const [formError, setFormError] = useState(''); 
-    
+
     // --- Handlers for UI state ---
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -42,7 +42,7 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
     };
-    
+
     // --- Handlers for Form state ---
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -54,7 +54,7 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
             setFormError('');
         }
     };
-    
+
     // --- Validation and Submission Logic ---
     const validate = () => {
         if (!formData.email || !formData.password) {
@@ -66,39 +66,42 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
             setFormError('Please enter a valid email address.');
             return false;
         }
+        if (formData.password.length < 8) {
+             setFormError('Password must be at least 8 characters long.');
+             return false;
+        }
         return true;
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFormError(''); 
-        
+
         if (!validate()) {
             return;
         }
-        
+
         setIsLoading(true);
 
         try {
-            const data = await LoginUser(formData);
+            const data = await RegisterUser(formData);
 
             if (data.token && data.userId) {
                 // 🔑 STEP 1: Persist the session data to localStorage
                 saveSession(data);
-                
-                // 🔑 STEP 2: Update the application's in-memory state
+
+                // 🔑 STEP 2: Update the application's in-memory state (assuming auto-login after register)
                 onLogin(data.token, data.userId.toString());
             } else {
-                setFormError("Login successful, but received incomplete data.");
+                setFormError("Registration successful, but received incomplete data.");
             }
         } catch (error: any) {
             if (error.response) {
-                if (error.response.status === 401) {
-                    setFormError('Invalid email or password.');
-                } else if (error.response.status === 400) {
-                    setFormError(error.response.data.message || 'Invalid login data. Please check your inputs.');
+                if (error.response.status === 400 || error.response.status === 403) {
+                    // 403 is common for "already exists" errors
+                    setFormError(error.response.data.message || 'Registration failed. The email may already be in use.');
                 } else {
-                    setFormError(`Login failed: ${error.response.statusText}. Please try again.`);
+                    setFormError(`Registration failed: ${error.response.statusText}. Please try again.`);
                 }
             } else {
                 setFormError("Unable to connect to the server. Please check your internet connection.");
@@ -113,32 +116,33 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
             <Card sx={{ maxWidth: 400, width: '100%', p: 3 }}>
                 <CardContent>
                     <Typography variant="h4" align="center" gutterBottom fontWeight="bold">
-                        Welcome Back
+                        {SIGNUP_LABELS.join}
                     </Typography>
                     <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 4 }}>
-                        Enter your credentials to access your account
+                        {SIGNUP_LABELS.portfolio}
                     </Typography>
 
                     <Box component="form" onSubmit={handleSubmit} noValidate>
-                        
+
                         {formError && (
                             <Alert severity="error" sx={{ mb: 2 }}>
                                 {formError}
                             </Alert>
                         )}
-                        
+
                         <Stack spacing={3}>
-                            <TextField 
-                                label="Email Address" 
+                            <TextField
+                                label="Email Address"
                                 name="email"
-                                fullWidth 
-                                variant="outlined" 
+                                fullWidth
+                                variant="outlined"
                                 type="email"
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
+                                disabled={isLoading}
                             />
-                            
+
                             <TextField
                                 label="Password"
                                 name="password"
@@ -148,6 +152,7 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                disabled={isLoading}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
@@ -164,24 +169,24 @@ export const LoginPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
                                     ),
                                 }}
                             />
-                            
-                            <Button 
-                                type="submit"
-                                variant="contained" 
-                                size="large" 
-                                fullWidth 
+
+                            <Button
+                                type="submit" 
+                                variant="contained"
+                                size="large"
+                                fullWidth
                                 disabled={isLoading}
                             >
-                                {isLoading ? 'Logging In...' : 'Log In'}
+                                {isLoading ? 'Creating Account...' : SIGNUP_LABELS.create}
                             </Button>
                         </Stack>
                     </Box>
 
                     <Box sx={{ mt: 3, textAlign: 'center' }}>
                         <Typography variant="body2" color="text.secondary">
-                            Don't have an account?{' '}
+                            {SIGNUP_LABELS.already}{' '}
                             <Button size="small" onClick={onSwitch} sx={{ minWidth: 'auto', p: 0 }} disabled={isLoading}>
-                                Sign Up
+                                {SIGNUP_LABELS.login}
                             </Button>
                         </Typography>
                     </Box>

@@ -1,29 +1,115 @@
-import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+// Declare global variables provided by the Canvas platform
+declare const __firebase_config: string | undefined;
+declare const __initial_auth_token: string | undefined;
+
+// Firebase imports
+import { initializeApp } from 'firebase/app';
+import type { Auth, User } from 'firebase/auth';
+import {
+    getAuth,
+    onAuthStateChanged,
+    signInAnonymously,
+    signInWithCustomToken,
+    signOut,
+} from 'firebase/auth';
+import type { Firestore } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
+// import { getAnalytics } from "firebase/analytics"; // Keep if planning to use analytics
+
 import type { AuthContextType } from '../interfaces/types';
 
+// Initialize context with an undefined default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [token, setToken] = useState(localStorage.getItem('token'));
-    const [userId, setUserId] = useState(localStorage.getItem('userId'));
+// --- Firebase Initialization and Globals ---
+// Mandatory environment variables provided by the Canvas platform
+// We must use the __firebase_config global variable provided by the environment
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
-    const login = (token: string, userId: string) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('userId', userId);
-        setToken(token);
-        setUserId(userId);
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// Initialize Firebase services outside of the component to avoid re-initialization
+const firebaseApp = initializeApp(firebaseConfig);
+const authInstance: Auth = getAuth(firebaseApp);
+const dbInstance: Firestore = getFirestore(firebaseApp);
+// const analytics = getAnalytics(firebaseApp); // Uncomment if you intend to use Analytics
+
+// dbInstance is accessed externally via useFirestore hook.
+
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    // Derived state for convenience
+    const userId = user ? user.uid : null;
+
+    useEffect(() => {
+        // 1. Set up Auth State Listener
+        const unsubscribe = onAuthStateChanged(authInstance, (currentUser) => {
+            setUser(currentUser);
+            // Once the initial state is determined, stop loading
+            setLoading(false);
+        });
+
+        // 2. Perform Initial Sign-in Attempt
+        const initialSignIn = async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(authInstance, initialAuthToken);
+                } else {
+                    // Fallback to anonymous sign-in if no custom token is provided
+                    await signInAnonymously(authInstance);
+                }
+            } catch (error) {
+                console.error("Initial sign-in failed:", error);
+                // Even on failure, stop loading to allow the app to render
+                setLoading(false);
+            }
+        };
+
+        initialSignIn();
+
+        // Cleanup the listener when the component unmounts
+        return () => unsubscribe();
+    }, []); // Run only once on mount
+
+    // --- CRITICAL STEP: FINAL LOGIN IMPLEMENTATION ---
+    // This function receives the Custom Token minted by your backend and signs in the user.
+    const login = async (token: string, newUserId: string) => {
+        try {
+            // newUserId is currently unused but kept for interface consistency
+            console.log(`Received token for user ${newUserId}. Signing in with Firebase Custom Token...`);
+            await signInWithCustomToken(authInstance, token);
+            // The onAuthStateChanged listener will handle the state update upon success.
+        } catch (error) {
+            console.error("Firebase custom token sign-in failed:", error);
+            throw new Error("Could not log in with token provided by backend.");
+        }
     };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        setToken(null);
-        setUserId(null);
+    const logout = async () => {
+        try {
+            await signOut(authInstance);
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
+
+    // The context value now contains the Firebase User object and derived state
+    const contextValue: AuthContextType = {
+        user,
+        userId,
+        loading,
+        login,
+        logout,
     };
 
     return (
-        <AuthContext.Provider value={{ token, userId, login, logout }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

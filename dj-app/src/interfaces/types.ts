@@ -1,62 +1,17 @@
 // --- INTERFACES & TYPES ---
-
-export interface Gig {
-  date: string;
-  venue: string;
-  city: string;
-}
-
-export interface Track {
-  title: string;
-  plays: string;
-  duration: string;
-}
-
-export interface DJ {
-  id: number;
-  name: string;
-  handle: string;
-  genre: string;
-  location: string;
-  bio: string;
-  image: string;
-  cover: string;
-  tracks?: Track[];
-  upcoming?: Gig[];
-}
-
-export interface User {
-  id: string;
-  name: string;
-  handle: string;
-  role: string;
-  avatar: string;
-}
+import type { User } from 'firebase/auth';
 
 export type Page = 'home' | 'directory' | 'dj-profile' | 'profile' | 'login' | 'signup' | 'events' | 'create';
 
-export interface HeaderProps {
-  user: User | null;
-  onNavigate: (page: Page) => void;
-  onLogout: () => void;
+export interface AuthContextType {
+    /** The currently authenticated Firebase User object, or null if logged out. */
+    user: User | null;
+    /** The user's ID string (derived from user.uid) or null. */
+    userId: number | null;
+    /** True if the authentication state is currently being loaded/initialized. */
+    loading: boolean;
+    /** Placeholder function for external login flow (relies on Firebase Auth state change). */
+    login: (token: string, userId: number) => Promise<void>;
+    /** Function to sign out the current user. */
+    logout: () => Promise<void>;
 }
-
-export interface HomePageProps {
-  onNavigate: (page: Page) => void;
-}
-
-export interface DirectoryPageProps {
-  onSelectDj: (dj: DJ) => void;
-}
-
-export interface ProfilePageProps {
-  dj: DJ;
-  onBack: () => void;
-  isOwner: boolean;
-}
-
-export interface AuthPageProps {
-  onLogin: () => void;
-  onSwitch: () => void;
-}
-

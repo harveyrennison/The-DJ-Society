@@ -1,4 +1,4 @@
-import type { User, DJ } from '../interfaces/types';
+import type { DJ, User } from '../interfaces/types';
 
 // --- Mock Data ---
 export const MOCK_USER: User = {
@@ -9,10 +9,12 @@ export const MOCK_USER: User = {
   avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
 };
 
+
+
 export const DJS: DJ[] = [
   {
     id: 1,
-    name: 'NEON PULSE',
+    name: 'ZENIATH',
     handle: '@neonpulse',
     genre: 'Synthwave / Techno',
     location: 'Berlin, Germany',

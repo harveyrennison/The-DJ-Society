@@ -24,21 +24,52 @@ import {
     MenuItem,
     Toolbar,
     Typography,
-    useMediaQuery
+    useMediaQuery,
+    CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
 import React, { useState } from 'react';
 
-import type { HeaderProps, Page } from '../interfaces/types';
+import type { HeaderProps } from "../interfaces/props";
+import type { Page } from '../interfaces/types';
 import { GradientText, theme } from '../theme/theme';
+import { LogoutButton } from './logout/LogoutButton';
+import { handleClientSideLogout } from '../session/manager'; 
+import { DesktopLogoutMenuItem } from './logout/DesktopLogout';
+
+// --- Header Component ---
 
 export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false); 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  const handleConfirmOpen = () => setConfirmOpen(true);
+  const handleConfirmClose = () => setConfirmOpen(false);
+
+  const handleConfirmLogout = async () => {
+    setConfirmOpen(false); // Close the modal
+    setIsLoggingOut(true); 
+
+    try {
+        await handleClientSideLogout();
+        onLogout(); 
+    } catch (error) {
+        console.error("Logout error (local session cleared anyway):", error);
+        onLogout(); 
+    } finally {
+        setIsLoggingOut(false);
+    }
+  };
 
   const navItems: { label: string, value: Page }[] = [
     { label: 'Home', value: 'home' },
@@ -96,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                     Publish Mix
                   </Button>
                   <IconButton onClick={handleMenu} sx={{ p: 0, border: '2px solid transparent', '&:hover': { border: '2px solid #00e5ff' } }}>
-                    <Avatar alt={user.name} src={user.avatar} />
+                    <Avatar />
                   </IconButton>
                   <Menu
                     sx={{ mt: '45px' }}
@@ -118,10 +149,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                       <ListItemText>Settings</ListItemText>
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={() => { handleClose(); onLogout(); }}>
-                      <ListItemIcon><Logout fontSize="small" color="error" /></ListItemIcon>
-                      <ListItemText sx={{ color: 'error.main' }}>Logout</ListItemText>
-                    </MenuItem>
+                    <DesktopLogoutMenuItem 
+                        onClose={handleClose} 
+                        onOpenConfirm={handleConfirmOpen} 
+                    />
                   </Menu>
                 </>
               ) : (
@@ -142,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
         </Container>
       </AppBar>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Using existing LogoutButton logic) */}
       <Drawer
         variant="temporary"
         anchor="right"
@@ -169,8 +200,15 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
             <Divider sx={{ my: 2 }} />
             {user ? (
                <>
-                <ListItem disablePadding><Button fullWidth onClick={() => onNavigate('profile')}>My Profile</Button></ListItem>
-                <ListItem disablePadding><Button fullWidth color="error" onClick={onLogout}>Logout</Button></ListItem>
+                <ListItem disablePadding>
+                  <Button fullWidth onClick={() => onNavigate('profile')}>My Profile</Button>
+                </ListItem>
+                <ListItem disablePadding sx={{ px: 2, pb: 2 }}>
+                  <LogoutButton 
+                    onLogoutSuccess={() => { onLogout(); handleDrawerToggle(); }} 
+                    fullWidth 
+                  />
+                </ListItem>
                </>
             ) : (
                <>
@@ -181,6 +219,77 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
           </List>
         </Box>
       </Drawer>
+      
+      {/* Logout Confirmation Dialog with modern styling */}
+      <Dialog 
+        open={confirmOpen} 
+        onClose={handleConfirmClose} 
+        fullWidth 
+        maxWidth="xs"
+        PaperProps={{ 
+            sx: { 
+                bgcolor: 'background.paper', 
+                // Enhanced border for a more defined look
+                border: '1px solid',
+                borderColor: 'rgba(255,255,255,0.2)', 
+                borderRadius: theme.shape.borderRadius, // Use theme's border radius
+                boxShadow: '0px 8px 24px rgba(0,0,0,0.5)', // Deeper shadow
+                background: `linear-gradient(to bottom right, ${theme.palette.background.paper}, #1a1a2e 80%)`, // Subtle gradient background
+                position: 'relative', // Needed for pseudo-elements if we go with more complex border effects
+            } 
+        }}
+      >
+        <DialogTitle sx={{ 
+            color: 'primary.main', // Changed to primary for a "confirm" feel, not "error" yet
+            fontWeight: 'bold', 
+            fontSize: '1.4rem',
+            pb: 1, // Less padding at bottom
+        }}>
+            Confirm Logout
+        </DialogTitle>
+        <DialogContent sx={{ pb: 3 }}> {/* Increased bottom padding */}
+            <Typography variant="body1" color="text.secondary">Are you sure you want to log out of your account?</Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)' }}> {/* Spaced out buttons, subtle divider */}
+            <Button 
+                onClick={handleConfirmClose} 
+                color="inherit" 
+                disabled={isLoggingOut}
+                sx={{ 
+                    // Custom style for cancel button
+                    textTransform: 'none', 
+                    fontWeight: 'bold',
+                    '&:hover': {
+                        bgcolor: 'rgba(255,255,255,0.08)',
+                    }
+                }}
+            >
+                Cancel.
+            </Button>
+            <Button 
+                onClick={handleConfirmLogout} 
+                variant="contained" 
+                color="error" // Keep error for the "destructive" action
+                startIcon={isLoggingOut ? <CircularProgress size={20} color="inherit" /> : <Logout />}
+                disabled={isLoggingOut}
+                sx={{ 
+                    textTransform: 'none', 
+                    fontWeight: 'bold',
+                    py: 1, // Slightly more vertical padding
+                    px: 3, // More horizontal padding
+                    // Custom gradient for the button if desired, or stick to default contained
+                    background: isLoggingOut ? theme.palette.error.dark : `linear-gradient(45deg, ${theme.palette.error.main} 30%, #ff5252 90%)`,
+                    '&:hover': {
+                         boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                         // Keep background on hover for gradient effect
+                         background: isLoggingOut ? theme.palette.error.dark : `linear-gradient(45deg, ${theme.palette.error.dark} 30%, #ff6e6e 90%)`,
+                    }
+                }}
+            >
+                {isLoggingOut ? 'Logging Out...' : 'Logout'}
+            </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

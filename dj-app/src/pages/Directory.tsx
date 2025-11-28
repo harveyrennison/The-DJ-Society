@@ -19,7 +19,8 @@ import {
 import React, { useState } from 'react';
 
 import { DJS } from '../data/mockData';
-import type { DirectoryPageProps, DJ } from '../interfaces/types';
+import type { DirectoryPageProps } from "../interfaces/props";
+import type { DJ } from '../interfaces/types';
 
 
 export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onSelectDj }) => {

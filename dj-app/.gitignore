@@ -6,13 +6,15 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+secrets
 
+# Dependencies / build
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,6 +25,7 @@ dist-ssr
 *.sln
 *.sw?
 
+# Misc
 eslint*
 Frontend*
 package*
