@@ -9,7 +9,7 @@ export interface AuthContextType {
     /** The currently authenticated Firebase User object, or null if logged out. */
     user: User | null;
     /** The user's ID string (derived from user.uid) or null. */
-    userId: number | null;
+    userId: string | null;
     /** True if the authentication state is currently being loaded/initialized. */
     loading: boolean;
     /** Placeholder function for external login flow (relies on Firebase Auth state change). */

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
+import config from "../../secrets/firebase-config.json"
 
 // Declare global variables provided by the Canvas platform
 declare const __firebase_config: string | undefined;
@@ -25,16 +26,14 @@ import type { AuthContextType } from '../interfaces/types';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // --- Firebase Initialization and Globals ---
-// Mandatory environment variables provided by the Canvas platform
-// We must use the __firebase_config global variable provided by the environment
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-
+const firebaseConfig = config
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
 // Initialize Firebase services outside of the component to avoid re-initialization
 const firebaseApp = initializeApp(firebaseConfig);
 const authInstance: Auth = getAuth(firebaseApp);
 const dbInstance: Firestore = getFirestore(firebaseApp);
+(window as any).tempAuthInstance = authInstance;
 // const analytics = getAnalytics(firebaseApp); // Uncomment if you intend to use Analytics
 
 // dbInstance is accessed externally via useFirestore hook.
@@ -66,8 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 }
             } catch (error) {
                 console.error("Initial sign-in failed:", error);
-                // Even on failure, stop loading to allow the app to render
-                setLoading(false);
+            } finally {
+                // Ensure loading is set to false even if sign-in failed
+                setLoading(false); 
             }
         };
 
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // --- CRITICAL STEP: FINAL LOGIN IMPLEMENTATION ---
     // This function receives the Custom Token minted by your backend and signs in the user.
-    const login = async (token: string, newUserId: string) => {
+    const login = async (token: string, newUserId: number) => {
         try {
             // newUserId is currently unused but kept for interface consistency
             console.log(`Received token for user ${newUserId}. Signing in with Firebase Custom Token...`);

@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { INITIAL_PROFILE, POPULAR_CITIES } from '../constants/strings';
+import { INITIAL_PROFILE, POPULAR_CITIES, POPULAR_GENRES } from '../constants/strings';
 import type { DjProfileBuilderProps } from '../interfaces/props';
 import type { BuilderStep } from '../interfaces/types';
 import type { DjProfileFormData } from '../interfaces/userTypes';
@@ -95,7 +95,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
             case 'identity':
                 return (
                     <Box sx={{ p: 4 }}>
-                        <Typography variant="h5" mb={2}>1. Your Identity</Typography>
+                        <Typography variant="h5" mb={2}>1. Basic Information</Typography>
                         <TextField
                             label="DJ Name"
                             name="djName"
@@ -150,74 +150,79 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                     </Box>
                 );
 
-            case 'sound':
-                return (
-                    <Box sx={{ p: 4 }}>
-                        <Typography variant="h5" mb={2}>2. Your Sound & Gear</Typography>
-                        
-                        <Typography variant="subtitle1" color="text.secondary" mt={2} mb={1}>
-                            Top Genres (Max 5)
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                            {profile.genres.map(genre => (
-                                <Chip
-                                    key={genre}
-                                    label={genre}
-                                    onDelete={() => handleRemoveGenre(genre)}
-                                    color="primary"
-                                    variant="outlined"
-                                />
-                            ))}
+                case 'sound':
+                    return (
+                        <Box sx={{ p: 4 }}>
+                            <Typography variant="h5" mb={2}>2. Sound & Gear</Typography>
+                            
+                            <Autocomplete
+                                multiple
+                                // Use POPULAR_GENRES as options
+                                options={POPULAR_GENRES}
+                                // The value is controlled by profile.genres
+                                value={profile.genres}
+                                // Update profile.genres when selection changes
+                                onChange={(_event, newValue) => {
+                                    // Limit selection to a maximum of 5 genres
+                                    const genresToSet = newValue.slice(0, 5); 
+                                    setProfile(prev => ({ ...prev, genres: genresToSet }));
+                                }}
+                                // Render the input field
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Select Your Genres (Max 5)"
+                                        fullWidth
+                                        margin="normal"
+                                    />
+                                )}
+                                // Render the selected genres as Chips
+                                renderValue={(value, getTagProps) =>
+                                    value.map((option, index) => (
+                                        <Chip
+                                            variant="outlined"
+                                            label={option}
+                                            {...getTagProps({ index })}
+                                            key={option}
+                                            color="primary" // Changed to primary for visibility
+                                        />
+                                    ))
+                                }
+                                disableCloseOnSelect // Keep the dropdown open after selection
+                            />
+
+                            {/* Equipment List (Changed back to single line) */}
+                            <TextField
+                                label="Equipment List"
+                                name="equipment"
+                                value={profile.equipment}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                // Removed multiline and rows={2}
+                                placeholder="e.g., Pioneer CDJ-3000s, A&H Xone 96"
+                            />
+                            <TextField
+                                label="SoundCloud URL"
+                                name="soundcloudUrl"
+                                value={profile.soundcloudUrl}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
+                            />
+                            {/* Changed label from Mixcloud to Instagram URL */}
+                            <TextField
+                                label="Instagram URL" 
+                                name="instagramUrl" // Use the correct name if it exists in your profile interface, or keep mixcloudUrl if that's what the interface expects. Assuming it should be 'instagramUrl' now.
+                                value={profile.instagramUrl}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
+                            />
                         </Box>
-                        <TextField
-                            label="Add Genre"
-                            value={currentGenre}
-                            onChange={(e) => setCurrentGenre(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddGenre(); }}}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={handleAddGenre} color="primary" disabled={!currentGenre || profile.genres.length >= 5}>
-                                            <QueueMusic />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                            helperText={`Current count: ${profile.genres.length}/5`}
-                        />
-                         <TextField
-                            label="Equipment List"
-                            name="equipment"
-                            value={profile.equipment}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                            multiline
-                            rows={2}
-                            placeholder="e.g., Pioneer CDJ-3000s, A&H Xone 96"
-                        />
-                        <TextField
-                            label="SoundCloud URL"
-                            name="soundcloudUrl"
-                            value={profile.soundcloudUrl}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
-                        />
-                        <TextField
-                            label="Mixcloud URL"
-                            name="mixcloudUrl"
-                            value={profile.instagramUrl}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                            InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
-                        />
-                    </Box>
-                );
+                    );
 
             case 'visuals':
                 return (
@@ -260,7 +265,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                             Profile Complete!
                         </Typography>
                         <Typography variant="h6" color="text.secondary" mb={4}>
-                            Your DJ portfolio is now live on DJ Society.
+                            Your DJ portfolio is now live.
                         </Typography>
                         <Button 
                             variant="contained" 
@@ -339,7 +344,11 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                                 variant="contained"
                                 color="primary"
                                 onClick={handleNext}
-                                disabled={isSaving || (step === 'identity' && (!profile.djName || !profile.location || !!locationError))} // <-- MODIFIED LINE
+                                disabled={
+                                    isSaving || 
+                                    (step === 'identity' && (!profile.djName || !profile.location || !!locationError)) ||
+                                    (step === 'sound' && profile.genres.length === 0) // <-- ADDED LINE
+                                }
                                 endIcon={<ArrowForward />}
                                 sx={{ textTransform: 'none', minWidth: '100px' }}
                             >

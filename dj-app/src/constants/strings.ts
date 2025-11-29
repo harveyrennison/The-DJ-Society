@@ -54,3 +54,24 @@ export const POPULAR_CITIES: string[] = [
     'Whangārei, New Zealand',
     'Gisborne, New Zealand',
 ];
+
+export const POPULAR_GENRES = [
+    'House', 
+    'Drum & Bass', 
+    'Dubstep', 
+    'Trap', 
+    'Electro', 
+    'Midtempo', 
+    'Garage', 
+    'Bass', 
+    'Breaks', 
+    'Trance', 
+    'Techno', 
+    'Hardcore',
+    'Hard Dance', 
+    'Hip Hop', 
+    'Reggae', 
+    'Disco', 
+    'Afrobeat', 
+    'Ambient'
+];
