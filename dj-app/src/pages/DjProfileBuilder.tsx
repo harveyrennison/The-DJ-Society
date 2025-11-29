@@ -1,40 +1,44 @@
-import React, { useState, useCallback, useMemo } from 'react';
 import {
-    Container,
-    Box,
-    Typography,
-    Button,
-    TextField,
-    Chip,
-    Avatar,
-    InputAdornment,
-    IconButton,
-    CircularProgress,
-    LinearProgress,
-} from '@mui/material';
-import { 
-    Person, 
-    QueueMusic, 
-    Palette, 
-    ArrowBack, 
-    ArrowForward, 
+    ArrowBack,
+    ArrowForward,
     Check,
     CloudUpload,
     Link as LinkIcon,
+    LocationCity,
+    QueueMusic
 } from '@mui/icons-material';
+import {
+    Autocomplete,
+    Avatar,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Container,
+    IconButton,
+    InputAdornment,
+    LinearProgress,
+    TextField,
+    Typography,
+} from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import {GradientText, theme} from '../theme/theme'
+import { INITIAL_PROFILE, POPULAR_CITIES } from '../constants/strings';
 import type { DjProfileBuilderProps } from '../interfaces/props';
 import type { BuilderStep } from '../interfaces/types';
-import { initialProfile } from '../constants/strings';
 import type { DjProfileFormData } from '../interfaces/userTypes';
+import { GradientText, theme } from '../theme/theme';
+import { validateLocation } from '../utils/validation';
 
 export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileComplete }) => {
-    const [profile, setProfile] = useState<DjProfileFormData>(initialProfile);
+    const [profile, setProfile] = useState<DjProfileFormData>(INITIAL_PROFILE);
     const [step, setStep] = useState<BuilderStep>('identity');
     const [isSaving, setIsSaving] = useState(false);
     const [currentGenre, setCurrentGenre] = useState('');
+    const [locationError, setLocationError] = useState<string | null>(null);
 
+
+    const locationOptions = POPULAR_CITIES
     const steps: BuilderStep[] = ['identity', 'sound', 'visuals'];
     const currentStepIndex = steps.indexOf(step);
 
@@ -58,6 +62,12 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
         if (currentStepIndex < steps.length - 1) {
             setStep(steps[currentStepIndex + 1]);
         }
+    };
+
+    const validateLocationAndSetError = (location: string): boolean => {
+        const error = validateLocation(location);
+        setLocationError(error);
+        return !error; // Return true if there is NO error (i.e., it's valid)
     };
 
     const handleBack = () => {
@@ -104,13 +114,36 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                             rows={3}
                             placeholder="Tell the world about your style and sound."
                         />
-                         <TextField
-                            label="Location / City"
-                            name="location"
+                        <Autocomplete
+                            // Use the static list for suggestions
+                            options={locationOptions}
                             value={profile.location}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
+                            // Handle selection from dropdown or when input is blurred/cleared
+                            onChange={(_event, newValue) => {
+                                setProfile(prev => ({ ...prev, location: newValue || '' }));
+                                validateLocationAndSetError(newValue || ''); 
+                            }}
+                            // Handle user typing
+                            onInputChange={async (_event, newInputValue, reason) => {
+                                if (reason === 'input') {
+                                    setProfile(prev => ({ ...prev, location: newInputValue }));
+                                    validateLocationAndSetError(newInputValue); // Validate as the user types
+                                }
+                            }}
+                            freeSolo // Allows the user to enter a city not in the options list (i.e., any city in the world)
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Location / City"
+                                    name="location"
+                                    fullWidth
+                                    margin="normal"
+                                    required
+                                    error={!!locationError}
+                                    helperText={locationError} // Display error message
+                                    placeholder="Enter or choose a city"
+                                />
+                            )}
                         />
                     </Box>
                 );

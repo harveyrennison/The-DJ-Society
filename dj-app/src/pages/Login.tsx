@@ -19,9 +19,7 @@ import React, { useState } from 'react';
 import { AccountSection } from '../theme/theme';
 
 import type { AuthPageProps } from "../interfaces/props";
-// ⚠️ Corrected import path for API Service
 import { LoginUser } from '../session/accountServices'; 
-// 🔑 Import the session manager utility
 import { saveSession } from '../session/manager'; 
 
 

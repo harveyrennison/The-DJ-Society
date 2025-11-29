@@ -1,3 +1,5 @@
+import { PROHIBITED_KEYWORDS } from "../../secrets/offensive_words.ts"
+
 const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -10,6 +12,24 @@ const validateUsername = (username: string): boolean => {
 
 const validatePassword = (password: string): boolean => {
     return password.length >= 6;
+};
+
+export const validateLocation = (location: string): string | null => {
+    const trimmedLocation = location.trim();
+    if (!trimmedLocation) {
+        return 'Location cannot be empty.';
+    }
+    if (trimmedLocation.length > 50) {
+        return 'Location name is too long (max 50 characters).';
+    }
+    
+    // Check for offensive content
+    const lowerLocation = trimmedLocation.toLowerCase();
+    if (PROHIBITED_KEYWORDS.some(keyword => lowerLocation.includes(keyword))) {
+        return 'Input contains inappropriate language.';
+    }
+    
+    return null;
 };
 
 export { validateEmail, validateUsername, validatePassword };
