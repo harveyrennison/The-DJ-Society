@@ -23,12 +23,15 @@ export const validateLocation = (location: string): string | null => {
         return 'Location name is too long (max 50 characters).';
     }
     
-    // Check for offensive content
     const lowerLocation = trimmedLocation.toLowerCase();
-    if (PROHIBITED_KEYWORDS.some(keyword => lowerLocation.includes(keyword))) {
+
+    if (PROHIBITED_KEYWORDS.some(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+        return regex.test(lowerLocation);
+    })) {
         return 'Input contains inappropriate language.';
     }
-    
+
     return null;
 };
 

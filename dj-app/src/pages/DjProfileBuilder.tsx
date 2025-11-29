@@ -59,6 +59,8 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
     }, []);
 
     const handleNext = () => {
+        // The button is disabled if the step is invalid, so we don't need to check here.
+        // We only move forward.
         if (currentStepIndex < steps.length - 1) {
             setStep(steps[currentStepIndex + 1]);
         }
@@ -337,7 +339,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                                 variant="contained"
                                 color="primary"
                                 onClick={handleNext}
-                                disabled={isSaving || (step === 'identity' && !profile.djName)}
+                                disabled={isSaving || (step === 'identity' && (!profile.djName || !profile.location || !!locationError))} // <-- MODIFIED LINE
                                 endIcon={<ArrowForward />}
                                 sx={{ textTransform: 'none', minWidth: '100px' }}
                             >
