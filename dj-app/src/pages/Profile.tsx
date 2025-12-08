@@ -1,11 +1,9 @@
 import {
-    CalendarMonth,
     Edit,
     Email,
     Instagram,
     LocationOn,
     Person,
-    PlayArrow,
     QueueMusic,
     Search,
     Twitter,
@@ -19,25 +17,23 @@ import {
     Container,
     Grid,
     IconButton,
-    Paper,
     Stack,
-    Typography,
+    Typography
 } from '@mui/material';
 import React from 'react';
 
 import type { ProfilePageProps } from "../interfaces/props";
-import type { Gig, Track } from '../interfaces/types';
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner }) => {
   // Use optional chaining since tracks/upcoming are optional in the DJ interface
-  const tracks: Track[] = dj.tracks || [];
-  const upcoming: Gig[] = dj.upcoming || [];
+//   const tracks: Track[] = dj.tracks || [];
+//   const upcoming: Gig[] = dj.upcoming || [];
 
   return (
     <Box sx={{ minHeight: '100vh', pb: 8 }}>
       {/* Cover Image */}
       <Box sx={{ height: 350, width: '100%', overflow: 'hidden', position: 'relative' }}>
-        <Box component="img" src={dj.cover} sx={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
+        <Box component="img" src={dj.bannerFile} sx={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
         <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #0a0b14 0%, transparent 100%)' }} />
         <Button 
             startIcon={isOwner ? <Edit /> : <Search />} 
@@ -53,9 +49,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner })
           {/* Left Column: Info */}
           <Grid sx={{ pt: { xs: '12px', md: '4px' } }}>
             <Card sx={{ p: 3, textAlign: 'center' }}>
-              <Avatar src={dj.image} alt={dj.name} sx={{ width: 150, height: 150, mx: 'auto', border: '4px solid #0a0b14', mb: 2, boxShadow: '0 0 20px rgba(0,229,255,0.3)' }} />
-              <Typography variant="h4" gutterBottom>{dj.name}</Typography>
-              <Typography variant="subtitle1" color="primary" gutterBottom>{dj.genre}</Typography>
+              <Avatar src={dj.avatarFile} alt={dj.djName} sx={{ width: 150, height: 150, mx: 'auto', border: '4px solid #0a0b14', mb: 2, boxShadow: '0 0 20px rgba(0,229,255,0.3)' }} />
+              <Typography variant="h4" gutterBottom>{dj.djName}</Typography>
+              <Typography variant="subtitle1" color="primary" gutterBottom>{dj.genres}</Typography>
               <Stack direction="row" justifyContent="center" spacing={1} sx={{ mb: 3, color: 'text.secondary' }}>
                 <LocationOn fontSize="small" />
                 <Typography variant="body2">{dj.location}</Typography>
@@ -88,7 +84,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner })
               <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                 <QueueMusic color="primary" /> Top Tracks
               </Typography>
-              <Stack spacing={2}>
+              {/* <Stack spacing={2}>
                 {tracks.map((track, index) => (
                   <Paper key={index} sx={{ p: 2, display: 'flex', alignItems: 'center', bgcolor: 'rgba(255,255,255,0.03)', '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }}>
                     <Typography color="text.secondary" sx={{ width: 30 }}>{index + 1}</Typography>
@@ -101,10 +97,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner })
                   </Paper>
                 ))}
                 {tracks.length === 0 && <Typography color="text.secondary">No tracks uploaded yet.</Typography>}
-              </Stack>
+              </Stack> */}
             </Box>
 
-            <Box>
+            {/* <Box>
               <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                 <CalendarMonth color="primary" /> Upcoming Gigs
               </Typography>
@@ -127,7 +123,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ dj, onBack, isOwner })
                 ))}
                 {upcoming.length === 0 && <Typography color="text.secondary" sx={{ pl: 2 }}>No upcoming gigs listed.</Typography>}
               </Grid>
-            </Box>
+            </Box> */}
           </Grid>
         </Grid>
       </Container>

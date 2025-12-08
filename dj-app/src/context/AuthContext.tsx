@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import config from "../../secrets/firebase-config.json"
+import config from "../../secrets/firebase-config.json";
 
 // Declare global variables provided by the Canvas platform
 declare const __firebase_config: string | undefined;
@@ -16,8 +16,8 @@ import {
     signInWithCustomToken,
     signOut,
 } from 'firebase/auth';
-import type { Firestore } from 'firebase/firestore';
-import { getFirestore } from 'firebase/firestore';
+// import type { Firestore } from 'firebase/firestore';
+// import { getFirestore } from 'firebase/firestore';
 // import { getAnalytics } from "firebase/analytics"; // Keep if planning to use analytics
 
 import type { AuthContextType } from '../interfaces/types';
@@ -32,12 +32,7 @@ const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial
 // Initialize Firebase services outside of the component to avoid re-initialization
 const firebaseApp = initializeApp(firebaseConfig);
 const authInstance: Auth = getAuth(firebaseApp);
-const dbInstance: Firestore = getFirestore(firebaseApp);
-(window as any).tempAuthInstance = authInstance;
-// const analytics = getAnalytics(firebaseApp); // Uncomment if you intend to use Analytics
-
-// dbInstance is accessed externally via useFirestore hook.
-
+//const dbInstance: Firestore = getFirestore(firebaseApp);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -77,12 +72,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => unsubscribe();
     }, []); // Run only once on mount
 
+    const getIdToken = async (): Promise<string | null> => {
+        if (!user) {
+            return null;
+        }
+        // forceRefresh: true is usually not needed unless explicitly dealing with claims changes,
+        // but it's good practice for API calls to ensure a fresh token.
+        return user.getIdToken(true); 
+    };
+
     // --- CRITICAL STEP: FINAL LOGIN IMPLEMENTATION ---
     // This function receives the Custom Token minted by your backend and signs in the user.
-    const login = async (token: string, newUserId: number) => {
+    const login = async (token: string) => {
         try {
             // newUserId is currently unused but kept for interface consistency
-            console.log(`Received token for user ${newUserId}. Signing in with Firebase Custom Token...`);
+            console.log(`Signing in with Firebase Custom Token...`);
             await signInWithCustomToken(authInstance, token);
             // The onAuthStateChanged listener will handle the state update upon success.
         } catch (error) {
@@ -103,6 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const contextValue: AuthContextType = {
         user,
         userId,
+        getIdToken,
         loading,
         login,
         logout,

@@ -1,6 +1,7 @@
 import type { Page } from "./types";
 import type { User, DJ, DjProfileFormData } from "./userTypes";
 
+export type NavState = { [key: string]: any };
 
 export interface HeaderProps {
     user: User | null;
@@ -23,7 +24,7 @@ export interface ProfilePageProps {
 }
 
 export interface AuthPageProps {
-    onLogin: (token: string, userId: string) => void; // Function to be called on successful login
+    onLogin: (token: string, userId: string, navState?: NavState) => void; // Function to be called on successful login
     onSwitch: () => void;
 }
 

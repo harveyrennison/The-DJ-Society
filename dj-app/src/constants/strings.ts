@@ -75,3 +75,5 @@ export const POPULAR_GENRES = [
     'Afrobeat', 
     'Ambient'
 ];
+
+export const DJ_PROFILE_STORAGE_BUILDER: string = 'dj_profile_builder_progress';

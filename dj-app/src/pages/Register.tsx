@@ -19,13 +19,12 @@ import React, { useState } from 'react';
 
 import { SIGNUP_LABELS } from '../constants/strings';
 import type { AuthPageProps } from "../interfaces/props";
-// ⚠️ Corrected import path for API Service
-import { RegisterUser } from '../session/accountServices'; 
-// 🔑 Import the session manager utility
-import { saveSession } from '../session/manager'; 
+import { RegisterUser } from '../session/accountServices'; // Updated import
+import { useAuth } from '../context/AuthContext'; 
 import { AccountSection } from '../theme/theme';
 
 export const SignupPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
+    const { login } = useAuth(); // <--- NEW
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -84,21 +83,21 @@ export const SignupPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
         setIsLoading(true);
 
         try {
+            // 1. Register on Backend (Creates DB entry + returns Custom Token)
             const data = await RegisterUser(formData);
 
-            if (data.token && data.userId) {
-                // 🔑 STEP 1: Persist the session data to localStorage
-                saveSession(data);
+            if (data.firebaseToken) {
+                // 2. Sign in to Firebase (Exchanges Custom Token for ID Token)
+                await login(data.firebaseToken);
 
-                // 🔑 STEP 2: Update the application's in-memory state (assuming auto-login after register)
+                // 3. Notify parent app
                 onLogin(data.token, data.userId.toString());
             } else {
                 setFormError("Registration successful, but received incomplete data.");
             }
         } catch (error: any) {
             if (error.response) {
-                if (error.response.status === 400 || error.response.status === 403) {
-                    // 403 is common for "already exists" errors
+                if (error.response.status === 400 || error.response.status === 409) {
                     setFormError(error.response.data.message || 'Registration failed. The email may already be in use.');
                 } else {
                     setFormError(`Registration failed: ${error.response.statusText}. Please try again.`);
@@ -153,20 +152,22 @@ export const SignupPage: React.FC<AuthPageProps> = ({ onLogin, onSwitch }) => {
                                 onChange={handleChange}
                                 required
                                 disabled={isLoading}
-                                InputProps={{
-                                    endAdornment: (
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
                                         <InputAdornment position="end">
                                             <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword}
-                                                onMouseDown={handleMouseDownPassword}
-                                                edge="end"
-                                                disabled={isLoading}
+                                            aria-label="toggle password visibility"
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                            edge="end"
+                                            disabled={isLoading}
                                             >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
-                                    ),
+                                        )
+                                    }
                                 }}
                             />
 

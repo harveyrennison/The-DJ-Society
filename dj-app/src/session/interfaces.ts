@@ -13,8 +13,9 @@ export interface RegisterResponse extends LoginResponse {
 }
 
 export interface LoginRequest {
-    email: string;
-    password: string;
+    email?: string;
+    password?: string;
+    googleToken?: string;
 }
 
 export interface RegisterRequest extends LoginRequest {}

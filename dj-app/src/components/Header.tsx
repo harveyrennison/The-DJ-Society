@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                             startIcon={<CreateIcon />} 
                             variant="contained" 
                             color="secondary" // Stand out with pink/secondary color
-                            onClick={() => onNavigate('create-profile')} 
+                            onClick={() => onNavigate('profile-builder')} 
                             size="small"
                         >
                             Complete Profile
@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                             startIcon={<GraphicEq />} 
                             variant="outlined" 
                             color="primary" 
-                            onClick={() => onNavigate('create-profile')} 
+                            onClick={() => onNavigate('profile-builder')} 
                             size="small"
                         >
                             Publish Mix
@@ -151,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                       <ListItemIcon><Person fontSize="small" /></ListItemIcon>
                       <ListItemText>Profile</ListItemText>
                     </MenuItem>
-                    <MenuItem onClick={() => { handleClose(); onNavigate('create-profile'); }}>
+                    <MenuItem onClick={() => { handleClose(); onNavigate('profile-builder'); }}>
                       <ListItemIcon><Settings fontSize="small" /></ListItemIcon>
                       <ListItemText>Settings</ListItemText>
                     </MenuItem>
@@ -214,9 +214,9 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                 </ListItem>
                 <ListItem disablePadding>
                     {!user.isDjProfileComplete ? (
-                        <Button fullWidth onClick={() => onNavigate('create-profile')} color="secondary" variant="contained" sx={{ mx: 2, mt: 1, mb: 1 }}>Complete Profile</Button>
+                        <Button fullWidth onClick={() => onNavigate('profile-builder')} color="secondary" variant="contained" sx={{ mx: 2, mt: 1, mb: 1 }}>Complete Profile</Button>
                     ) : (
-                        <Button fullWidth onClick={() => onNavigate('create-profile')}>Publish Mix</Button>
+                        <Button fullWidth onClick={() => onNavigate('profile-builder')}>Publish Mix</Button>
                     )}
                 </ListItem>
                 <ListItem disablePadding sx={{ px: 2, pb: 2 }}>

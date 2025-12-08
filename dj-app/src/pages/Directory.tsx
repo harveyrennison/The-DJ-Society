@@ -27,8 +27,8 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onSelectDj }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const filteredDjs: DJ[] = DJS.filter((dj: DJ) => 
-    dj.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    dj.genre.toLowerCase().includes(searchTerm.toLowerCase())
+    dj.djName.toLowerCase().includes(searchTerm.toLowerCase())
+    // dj.genres.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -55,14 +55,14 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onSelectDj }) => {
 
         <Grid container spacing={4}>
           {filteredDjs.map((dj) => (
-            <Grid sx={{ pt: { xs: '12px', md: '4px', sm: '6px' } }} key={dj.id}>
+            <Grid sx={{ pt: { xs: '12px', md: '4px', sm: '6px' } }} key={dj.djId}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', transition: '0.3s', '&:hover': { transform: 'translateY(-8px)', boxShadow: '0 10px 30px rgba(0,229,255,0.15)' } }}>
                 <Box sx={{ position: 'relative' }}>
-                  <CardMedia component="img" height="300" image={dj.image} alt={dj.name} />
-                  <Chip label={dj.genre} size="small" sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }} />
+                  <CardMedia component="img" height="300" image={dj.avatarFile} alt={dj.djName} />
+                  <Chip label={dj.genres} size="small" sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }} />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h5" gutterBottom fontWeight="bold">{dj.name}</Typography>
+                  <Typography variant="h5" gutterBottom fontWeight="bold">{dj.djId}</Typography>
                   <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2, color: 'text.secondary' }}>
                     <LocationOn fontSize="small" />
                     <Typography variant="body2">{dj.location}</Typography>

@@ -1,7 +1,9 @@
 import {
     GraphicEq,
+    PersonAdd,
     PlayArrow
 } from '@mui/icons-material';
+import Close from '@mui/icons-material/Close';
 import {
     Box,
     Button,
@@ -9,12 +11,18 @@ import {
     CardMedia,
     Chip,
     Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Grid,
+    IconButton,
     Stack,
-    Typography
+    Typography,
+    useMediaQuery,
+    useTheme
 } from '@mui/material';
-import React from 'react';
-
+import React, { useEffect, useState } from 'react';
 import { DJS } from '../data/mockData';
 import BComPhoto from '../images/bcomhide.jpg';
 import FoundryPhoto from '../images/foundry.jpg';
@@ -22,10 +30,28 @@ import type { HomePageProps } from "../interfaces/props";
 import { GradientText, HeroSection } from '../theme/theme';
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    
+    // State for the Welcome Modal
+    const [openWelcomeModal, setOpenWelcomeModal] = useState(false);
+
+
+    const handleCloseModal = () => {
+        setOpenWelcomeModal(false);
+    };
+
+    const handleGoToBuilder = () => {
+        setOpenWelcomeModal(false);
+        // Navigate to your separate Builder Page
+        onNavigate('profile-builder'); 
+    };
+
     return (
         <HeroSection>
             <Container maxWidth="lg">
                 <Grid container spacing={4} alignItems="center">
+                    {/* --- LEFT SIDE: HERO TEXT --- */}
                     <Grid sx={{ pt: { xs: '12px', md: '6px' } }}>
                         <Chip 
                             icon={<GraphicEq sx={{ color: '#00e5ff !important' }} />} 
@@ -43,26 +69,28 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                         </Typography>
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                             <Button 
-                            variant="contained" 
-                            size="large" 
-                            endIcon={<PlayArrow />}
-                            onClick={() => onNavigate('home')}
-                            sx={{ py: 1.5, px: 4 }}
+                                variant="contained" 
+                                size="large" 
+                                endIcon={<PlayArrow />}
+                                onClick={() => onNavigate('directory')} // Or 'explore'
+                                sx={{ py: 1.5, px: 4 }}
                             >
                                 Explore DJs
                             </Button>
                             <Button 
-                            variant="outlined" 
-                            size="large"
-                            onClick={() => onNavigate('signup')}
-                            sx={{ py: 1.5, px: 4, borderColor: 'rgba(255,255,255,0.2)' }}
+                                variant="outlined" 
+                                size="large"
+                                // If they click this manually, go straight to builder
+                                onClick={() => onNavigate('profile-builder')} 
+                                sx={{ py: 1.5, px: 4, borderColor: 'rgba(255,255,255,0.2)' }}
                             >
                                 Create Portfolio
                             </Button>
                         </Stack>
-                        </Grid>
-                        <Grid sx={{ pt: { xs: '12px', md: '6px' }, position: 'relative', display: { xs: 'none', md: 'block' } }}>
-                        {/* Abstract Visual Elements */}
+                    </Grid>
+
+                    {/* --- RIGHT SIDE: IMAGES --- */}
+                    <Grid sx={{ pt: { xs: '12px', md: '6px' }, position: 'relative', display: { xs: 'none', md: 'block' } }}>
                         <Box sx={{
                             position: 'relative',
                             width: '100%',
@@ -112,6 +140,63 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     </Grid>
                 </Grid>
             </Container>
+
+            {/* --- WELCOME / CREATE PROFILE MODAL --- */}
+            <Dialog
+                open={openWelcomeModal}
+                onClose={handleCloseModal}
+                fullScreen={fullScreen}
+                PaperProps={{
+                    sx: {
+                        bgcolor: theme.palette.background.paper,
+                        backgroundImage: 'none',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        maxWidth: '450px',
+                        borderRadius: 2
+                    }
+                }}
+            >
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" fontWeight="bold">
+                        Welcome to the Crew!
+                    </Typography>
+                    <IconButton onClick={handleCloseModal} size="small">
+                        <Close />
+                    </IconButton>
+                </DialogTitle>
+
+                <DialogContent>
+                    <Box sx={{ textAlign: 'center', py: 2 }}>
+                        <PersonAdd sx={{ fontSize: 60, color: theme.palette.primary.main, mb: 2 }} />
+                        <Typography variant="body1" color="text.secondary" paragraph>
+                            Your account is created, but you're invisible until you set up your <b>DJ Profile</b>.
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            It only takes 2 minutes to add your DJ name, genres, and mix links.
+                        </Typography>
+                    </Box>
+                </DialogContent>
+
+                <DialogActions sx={{ p: 3, justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
+                    <Button 
+                        variant="contained" 
+                        fullWidth 
+                        size="large"
+                        onClick={handleGoToBuilder}
+                        startIcon={<GraphicEq />}
+                    >
+                        Create DJ Profile Now
+                    </Button>
+                    <Button 
+                        variant="text" 
+                        fullWidth
+                        onClick={handleCloseModal}
+                        color="inherit"
+                    >
+                        I'll do it later
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </HeroSection>
     );
 };

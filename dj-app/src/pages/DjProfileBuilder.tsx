@@ -3,9 +3,7 @@ import {
     ArrowForward,
     Check,
     CloudUpload,
-    Link as LinkIcon,
-    LocationCity,
-    QueueMusic
+    Link as LinkIcon
 } from '@mui/icons-material';
 import {
     Autocomplete,
@@ -15,52 +13,82 @@ import {
     Chip,
     CircularProgress,
     Container,
-    IconButton,
     InputAdornment,
     LinearProgress,
     TextField,
     Typography,
+    Alert
 } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { INITIAL_PROFILE, POPULAR_CITIES, POPULAR_GENRES } from '../constants/strings';
+import { DJ_PROFILE_STORAGE_BUILDER, INITIAL_PROFILE, POPULAR_CITIES, POPULAR_GENRES } from '../constants/strings';
 import type { DjProfileBuilderProps } from '../interfaces/props';
 import type { BuilderStep } from '../interfaces/types';
-import type { DjProfileFormData } from '../interfaces/userTypes';
+import type { DJ, DjProfileFormData, Genre } from '../interfaces/userTypes';
 import { GradientText, theme } from '../theme/theme';
 import { validateLocation } from '../utils/validation';
+import { CreateDjProfile } from '../session/profileServices';
+import { useAuth } from '../context/AuthContext';
 
 export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileComplete }) => {
-    const [profile, setProfile] = useState<DjProfileFormData>(INITIAL_PROFILE);
-    const [step, setStep] = useState<BuilderStep>('identity');
+    const { getIdToken } = useAuth();
+
+    const [profile, setProfile] = useState<DjProfileFormData>(() => {
+        try {
+            const savedData = localStorage.getItem(DJ_PROFILE_STORAGE_BUILDER);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                // Merge with INITIAL_PROFILE to ensure structure matches even if saved data is old
+                return { ...INITIAL_PROFILE, ...parsed.profile };
+            }
+        } catch (e) {
+            console.error('Error loading profile draft:', e);
+        }
+        return INITIAL_PROFILE;
+    });
+
+    const [step, setStep] = useState<BuilderStep>(() => {
+        try {
+            const savedData = localStorage.getItem(DJ_PROFILE_STORAGE_BUILDER);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                // If they were at 'complete' previously, reset to 'identity' to avoid getting stuck
+                // unless you specifically want them to see the success screen again.
+                return parsed.step === 'complete' ? 'identity' : parsed.step;
+            }
+        } catch (e) {
+            console.error('Error loading step draft:', e);
+        }
+        return 'identity';
+    });
+
     const [isSaving, setIsSaving] = useState(false);
-    const [currentGenre, setCurrentGenre] = useState('');
     const [locationError, setLocationError] = useState<string | null>(null);
-
-
+    const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const [statusSeverity, setStatusSeverity] = useState<'error' | 'success'>('error');
     const locationOptions = POPULAR_CITIES
     const steps: BuilderStep[] = ['identity', 'sound', 'visuals'];
     const currentStepIndex = steps.indexOf(step);
 
+    useEffect(() => {
+        if (step !== 'complete') {
+            localStorage.setItem(DJ_PROFILE_STORAGE_BUILDER, JSON.stringify({
+                profile,
+                step
+            }));
+        }
+    }, [profile, step]);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        // Clear status message on input
+        setStatusMessage(null);
         setProfile({ ...profile, [e.target.name]: e.target.value });
     };
-
-    const handleAddGenre = useCallback(() => {
-        const genre = currentGenre.trim();
-        if (genre && !profile.genres.includes(genre) && profile.genres.length < 5) {
-            setProfile(prev => ({ ...prev, genres: [...prev.genres, genre] }));
-            setCurrentGenre('');
-        }
-    }, [currentGenre, profile.genres]);
-
-    const handleRemoveGenre = useCallback((genreToRemove: string) => {
-        setProfile(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genreToRemove) }));
-    }, []);
 
     const handleNext = () => {
         // The button is disabled if the step is invalid, so we don't need to check here.
         // We only move forward.
+        setStatusMessage(null);
         if (currentStepIndex < steps.length - 1) {
             setStep(steps[currentStepIndex + 1]);
         }
@@ -73,23 +101,49 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
     };
 
     const handleBack = () => {
+        setStatusMessage(null);
         if (currentStepIndex > 0) {
             setStep(steps[currentStepIndex - 1]);
         }
     };
 
     const handleSaveProfile = async () => {
-        if (!profile.djName) return; // Prevent saving if name is missing
-
+        setStatusMessage(null);
+        const token = await getIdToken();
+        if (!token) {
+            console.error('Cannot save profile: Authentication token is missing or mocked. Please ensure the user is logged in.');
+            setStatusSeverity('error');
+            setStatusMessage('Error: You must be logged in to save your profile.');
+            return;
+        }
         setIsSaving(true);
-        // --- MOCK API CALL START ---
-        console.log('Saving DJ Profile:', profile);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // --- MOCK API CALL END ---
-        setIsSaving(false);
-        setStep('complete');
-    };
+        
+        try {
+            console.info('Attempting to save DJ Profile with token:', profile);
+            
+            // 1. Call the service function with the token and profile data
+            const savedProfile: DJ = await CreateDjProfile(token, profile);
+            
+            console.info('✅ DJ Profile successfully saved:', savedProfile);
 
+            // 2. Transition to the complete step and pass the final saved data
+            setStatusSeverity('success');
+            setStatusMessage('DJ Profile successfully created!');
+            setStep('complete');
+            
+            // It's usually best practice to pass the data returned from the server
+            // to the completion handler, as the server has the final IDs (djId, userId, etc.)
+            onProfileComplete(savedProfile);
+
+        } catch (error) {
+            console.error('❌ Failed to save DJ Profile:', error);
+            setStatusSeverity('error');
+            setStatusMessage('Failed to save profile. Please check the console for network or validation errors.'); 
+
+        } finally {
+            setIsSaving(false);
+        }
+    };
     const renderStepContent = useMemo(() => {
         switch (step) {
             case 'identity':
@@ -105,16 +159,50 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                             margin="normal"
                             required
                         />
-                        <TextField
-                            label="Short Bio"
-                            name="bio"
-                            value={profile.bio}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                            multiline
-                            rows={3}
-                            placeholder="Tell the world about your style and sound."
+                        
+                        <Autocomplete
+                            multiple
+                            // Use POPULAR_GENRES as options
+                            options={POPULAR_GENRES}
+                            // The value is controlled by profile.genres
+                            value={profile.genres.map(g => g.genreName)}
+                            getOptionLabel={(option) => option}
+                            onChange={(_event, newValue: string[]) => {
+                                // Limit selection to a maximum of 5 genres
+                                const genresToSet: Genre[] = newValue
+                                    .slice(0, 5)
+                                    .map(genreName => ({
+                                        // Assume genre_id 0 and subgenres null if not available from a better source
+                                        genreId: 0, 
+                                        genreName: genreName,
+                                        subgenres: null
+                                    }));
+                                setProfile(prev => ({ ...prev, genres: genresToSet }));
+                                setStatusMessage(null);
+                            }}
+                            // Render the input field
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Genres (Max 5)"
+                                    required
+                                    fullWidth
+                                    margin="normal"
+                                />
+                            )}
+                            // Render the selected genres as Chips
+                            renderValue={(value, getValueProps) =>
+                                value.map((option, index) => (
+                                    <Chip
+                                        variant="outlined"
+                                        label={option}
+                                        {...getValueProps({ index })}
+                                        key={option}
+                                        color="primary"
+                                    />
+                                ))
+                            }
+                            disableCloseOnSelect 
                         />
                         <Autocomplete
                             // Use the static list for suggestions
@@ -124,6 +212,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                             onChange={(_event, newValue) => {
                                 setProfile(prev => ({ ...prev, location: newValue || '' }));
                                 validateLocationAndSetError(newValue || ''); 
+                                setStatusMessage(null);
                             }}
                             // Handle user typing
                             onInputChange={async (_event, newInputValue, reason) => {
@@ -131,6 +220,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                                     setProfile(prev => ({ ...prev, location: newInputValue }));
                                     validateLocationAndSetError(newInputValue); // Validate as the user types
                                 }
+                                setStatusMessage(null);
                             }}
                             freeSolo // Allows the user to enter a city not in the options list (i.e., any city in the world)
                             renderInput={(params) => (
@@ -154,44 +244,17 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                     return (
                         <Box sx={{ p: 4 }}>
                             <Typography variant="h5" mb={2}>2. Sound & Gear</Typography>
-                            
-                            <Autocomplete
-                                multiple
-                                // Use POPULAR_GENRES as options
-                                options={POPULAR_GENRES}
-                                // The value is controlled by profile.genres
-                                value={profile.genres}
-                                // Update profile.genres when selection changes
-                                onChange={(_event, newValue) => {
-                                    // Limit selection to a maximum of 5 genres
-                                    const genresToSet = newValue.slice(0, 5); 
-                                    setProfile(prev => ({ ...prev, genres: genresToSet }));
-                                }}
-                                // Render the input field
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Select Your Genres (Max 5)"
-                                        fullWidth
-                                        margin="normal"
-                                    />
-                                )}
-                                // Render the selected genres as Chips
-                                renderValue={(value, getTagProps) =>
-                                    value.map((option, index) => (
-                                        <Chip
-                                            variant="outlined"
-                                            label={option}
-                                            {...getTagProps({ index })}
-                                            key={option}
-                                            color="primary" // Changed to primary for visibility
-                                        />
-                                    ))
-                                }
-                                disableCloseOnSelect // Keep the dropdown open after selection
+                            <TextField
+                                label="Short Bio"
+                                name="bio"
+                                value={profile.bio}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                multiline
+                                rows={3}
+                                placeholder="Tell the world about your style and sound."
                             />
-
-                            {/* Equipment List (Changed back to single line) */}
                             <TextField
                                 label="Equipment List"
                                 name="equipment"
@@ -199,8 +262,16 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                                 onChange={handleInputChange}
                                 fullWidth
                                 margin="normal"
-                                // Removed multiline and rows={2}
-                                placeholder="e.g., Pioneer CDJ-3000s, A&H Xone 96"
+                                placeholder="e.g., Pioneer CDJ-3000s, DDJ-FLX6"
+                            />
+                            <TextField
+                                label="Instagram URL" 
+                                name="instagramUrl" // Use the correct name if it exists in your profile interface, or keep mixcloudUrl if that's what the interface expects. Assuming it should be 'instagramUrl' now.
+                                value={profile.instagramUrl}
+                                onChange={handleInputChange}
+                                fullWidth
+                                margin="normal"
+                                slotProps = {{ input: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
                             />
                             <TextField
                                 label="SoundCloud URL"
@@ -209,17 +280,7 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                                 onChange={handleInputChange}
                                 fullWidth
                                 margin="normal"
-                                InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
-                            />
-                            {/* Changed label from Mixcloud to Instagram URL */}
-                            <TextField
-                                label="Instagram URL" 
-                                name="instagramUrl" // Use the correct name if it exists in your profile interface, or keep mixcloudUrl if that's what the interface expects. Assuming it should be 'instagramUrl' now.
-                                value={profile.instagramUrl}
-                                onChange={handleInputChange}
-                                fullWidth
-                                margin="normal"
-                                InputProps={{ startAdornment: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
+                                slotProps = {{ input: <InputAdornment position="start"><LinkIcon color="disabled"/></InputAdornment> }}
                             />
                         </Box>
                     );
@@ -279,96 +340,96 @@ export const DjProfileBuilder: React.FC<DjProfileBuilderProps> = ({ onProfileCom
                     </Box>
                 );
         }
-    }, [step, profile, currentGenre, handleAddGenre, handleRemoveGenre, onProfileComplete]);
+    }, [step, profile, locationError, onProfileComplete, handleInputChange]);
 
     const progress = (currentStepIndex + 1) / (steps.length) * 100;
     return (
-            <Container maxWidth="md" sx={{ py: 6, minHeight: '100vh', background: theme.palette.background.default, color: theme.palette.text.primary }}>
-                
-                <Box mb={4} sx={{ textAlign: 'center' }}>
-                    <Typography variant="h4" fontWeight={700}>
-                        Create Your DJ <GradientText>Portfolio</GradientText>
-                    </Typography>
-                    <Typography variant="subtitle1" color="text.secondary">
-                        Showcase your sound in three simple steps.
-                    </Typography>
-                </Box>
+        <Container maxWidth="md" sx={{ py: 6, minHeight: '100vh', background: theme.palette.background.default, color: theme.palette.text.primary }}>
+            <Box mb={4} sx={{ textAlign: 'center' }}>
+                <Typography variant="h4" fontWeight={700}>
+                    Create Your DJ <GradientText>Portfolio</GradientText>
+                </Typography>
+                <Typography variant="subtitle1" color="text.secondary">
+                    Showcase your sound in three simple steps.
+                </Typography>
+            </Box>
 
-                {/* [MOVED] Progress Bar was here, now removed */}
+            {statusMessage && (
+                <Alert severity={statusSeverity} sx={{ mb: 4 }}>
+                    {statusMessage}
+                </Alert>
+            )}
 
-                {/* Main Content Card */}
-                <Box 
-                    sx={{ 
-                        bgcolor: theme.palette.background.paper, 
-                        borderRadius: theme.shape.borderRadius, 
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}
-                >
-                    {renderStepContent}
-                </Box>
+            <Box 
+                sx={{ 
+                    bgcolor: theme.palette.background.paper, 
+                    borderRadius: theme.shape.borderRadius, 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}
+            >
+                {renderStepContent}
+            </Box>
 
-                {/* Navigation Buttons AND Progress Bar */}
-                {step !== 'complete' && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, p: 2 }}>
-                        <Button
-                            variant="outlined"
-                            onClick={handleBack}
-                            disabled={currentStepIndex === 0 || isSaving}
-                            startIcon={<ArrowBack />}
-                            sx={{ textTransform: 'none', minWidth: '100px' }} // Added minWidth for consistency
-                        >
-                            Back
-                        </Button>
-                        
-                        {/* Progress Bar Centered Here */}
-                        <Box sx={{ flexGrow: 1, mx: 3 }}>
-                            <LinearProgress 
-                                variant="determinate" 
-                                value={progress} 
-                                sx={{ 
-                                    height: 10, 
-                                    borderRadius: 5,
-                                    bgcolor: theme.palette.background.paper,
-                                    border: '1px solid rgba(255,255,255,0.1)', // Optional: adds a subtle border
-                                    '& .MuiLinearProgress-bar': {
-                                        backgroundColor: theme.palette.primary.main,
-                                        backgroundImage: `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
-                                    }
-                                }} 
-                            />
-                        </Box>
-                        
-                        {currentStepIndex < steps.length - 1 ? (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleNext}
-                                disabled={
-                                    isSaving || 
-                                    (step === 'identity' && (!profile.djName || !profile.location || !!locationError)) ||
-                                    (step === 'sound' && profile.genres.length === 0) // <-- ADDED LINE
+            {/* Navigation Buttons AND Progress Bar */}
+            {step !== 'complete' && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, p: 2 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleBack}
+                        disabled={currentStepIndex === 0 || isSaving}
+                        startIcon={<ArrowBack />}
+                        sx={{ textTransform: 'none', minWidth: '100px' }} // Added minWidth for consistency
+                    >
+                        Back
+                    </Button>
+                    
+                    {/* Progress Bar Centered Here */}
+                    <Box sx={{ flexGrow: 1, mx: 3 }}>
+                        <LinearProgress 
+                            variant="determinate" 
+                            value={progress} 
+                            sx={{ 
+                                height: 10, 
+                                borderRadius: 5,
+                                bgcolor: theme.palette.background.paper,
+                                border: '1px solid rgba(255,255,255,0.1)', // Optional: adds a subtle border
+                                '& .MuiLinearProgress-bar': {
+                                    backgroundColor: theme.palette.primary.main,
+                                    backgroundImage: `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
                                 }
-                                endIcon={<ArrowForward />}
-                                sx={{ textTransform: 'none', minWidth: '100px' }}
-                            >
-                                Continue
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSaveProfile}
-                                disabled={isSaving || !profile.djName}
-                                startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <Check />}
-                                sx={{ textTransform: 'none', minWidth: '100px' }}
-                            >
-                                {isSaving ? 'Saving...' : 'Finish'}
-                            </Button>
-                        )}
+                            }} 
+                        />
                     </Box>
-                )}
-
-            </Container>
+                    
+                    {currentStepIndex < steps.length - 1 ? (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleNext}
+                            disabled={
+                                isSaving || 
+                                (step === 'identity' && (!profile.djName || profile.genres.length === 0 || !profile.location || !!locationError)) 
+                            }
+                            endIcon={<ArrowForward />}
+                            sx={{ textTransform: 'none', minWidth: '100px' }}
+                        >
+                            Continue
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSaveProfile}
+                            disabled={isSaving || !profile.djName}
+                            startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <Check />}
+                            sx={{ textTransform: 'none', minWidth: '100px' }}
+                        >
+                            {isSaving ? 'Saving...' : 'Finish'}
+                        </Button>
+                    )}
+                </Box>
+            )}
+        </Container>
         );
     };
