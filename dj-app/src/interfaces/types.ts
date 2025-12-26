@@ -1,7 +1,15 @@
 // --- INTERFACES & TYPES ---
-import type { User } from 'firebase/auth';
+import type { User } from "firebase/auth";
 
-export type Page = 'home' | 'directory' | 'dj-profile' | 'profile' | 'login' | 'signup' | 'events' | 'create';
+export type Page =
+    | "home"
+    | "directory"
+    | "dj-profile"
+    | "profile"
+    | "login"
+    | "signup"
+    | "events"
+    | "create";
 
 export interface AuthContextType {
     /** The currently authenticated Firebase User object, or null if logged out. */

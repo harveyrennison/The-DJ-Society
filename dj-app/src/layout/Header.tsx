@@ -32,20 +32,22 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-import type { HeaderProps } from "../interfaces/props";
 import type { Page } from "../interfaces/types";
+import type { User } from "../interfaces/userTypes";
+import { DesktopLogoutMenuItem } from "../pages/account/logout/DesktopLogout";
+import { LogoutButton } from "../pages/account/logout/LogoutButton";
 import { handleClientSideLogout } from "../session/manager";
 import { GradientText, theme } from "../theme/theme";
-import { DesktopLogoutMenuItem } from "./logout/DesktopLogout";
-import { LogoutButton } from "./logout/LogoutButton";
 
 // --- Header Component ---
 
-export const Header: React.FC<HeaderProps> = ({
-    user,
-    onNavigate,
-    onLogout,
-}) => {
+export interface HeaderProps {
+    user: User | null;
+    onNavigate: (page: Page) => void;
+    onLogout: () => void;
+}
+
+export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -79,7 +81,6 @@ export const Header: React.FC<HeaderProps> = ({
 
     const navItems: { label: string; value: Page }[] = [
         { label: "Home", value: "home" },
-        
     ];
 
     return (

@@ -92,30 +92,29 @@
 // // Example of what the 'password' field would look like if the API only returns the essential User data:
 // export type UserPublicData = Omit<User, 'password' | 'authToken' | 'email' | 'isHidden'>;
 
-
 export interface Gig {
-  date: string;
-  venue: string;
-  city: string;
+    date: string;
+    venue: string;
+    city: string;
 }
 
 export interface Track {
-  title: string;
-  plays: string;
-  duration: string;
+    title: string;
+    plays: string;
+    duration: string;
 }
 
 export interface DJ {
-  id: number;
-  name: string;
-  handle: string;
-  genre: string;
-  location: string;
-  bio: string;
-  image: string;
-  cover: string;
-  tracks?: Track[];
-  upcoming?: Gig[];
+    id: number;
+    name: string;
+    handle: string;
+    genre: string;
+    location: string;
+    bio: string;
+    image: string;
+    cover: string;
+    tracks?: Track[];
+    upcoming?: Gig[];
 }
 
 export interface User {

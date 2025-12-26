@@ -2,15 +2,15 @@ import { Box, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import React, { useState } from "react";
 
-import { Header } from "./components/Header";
+import { Header } from "./layout/Header";
 import { DJS, MOCK_USER } from "./data/mockData";
 import type { Page } from "./interfaces/types";
 import type { DJ, User } from "./interfaces/userTypes";
+import { LoginPage } from "./pages/account/LoginPage";
+import { RegisterPage } from "./pages/account/RegisterPage";
 import { DirectoryPage } from "./pages/Directory";
 import { HomePage } from "./pages/home/HomePage";
-import { LoginPage } from "./pages/Login";
-import { ProfilePage } from "./pages/Profile";
-import { SignupPage } from "./pages/Register";
+import { ProfilePage } from "./pages/profile/ProfilePage";
 import { theme } from "./theme/theme";
 
 export const App: React.FC = () => {
@@ -71,7 +71,6 @@ export const App: React.FC = () => {
                     />
                 );
             case "login":
-                // onSwitch navigates to the signup page
                 return (
                     <LoginPage
                         onLogin={handleLogin}
@@ -81,7 +80,7 @@ export const App: React.FC = () => {
             case "signup":
                 // onSwitch navigates to the login page
                 return (
-                    <SignupPage
+                    <RegisterPage
                         onLogin={handleLogin}
                         onSwitch={() => handleNavigate("login")}
                     />
