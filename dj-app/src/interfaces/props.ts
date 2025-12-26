@@ -8,10 +8,6 @@ export interface HeaderProps {
     onLogout: () => void;
 }
 
-export interface HomePageProps {
-    onNavigate: (page: Page) => void;
-}
-
 export interface DirectoryPageProps {
     onSelectDj: (dj: DJ) => void;
 }
