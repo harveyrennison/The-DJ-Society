@@ -1,30 +1,25 @@
+import type { Page } from "../../interfaces/types";
 import {
     ACCOUNT_EXISTING_QUESTION,
     CREATE_ACCOUNT,
     CREATE_PORTFOLIO_IN_SECONDS,
     CREATING_ACCOUNT_LOADING,
     JOIN_THE_SOCIETY,
-    LOG_IN,
+    LOGIN,
+    LOGIN_PAGE_NAVIGATION,
 } from "../strings";
-import {
-    FormatAccountPage,
-    type AccountPageNavigationProps,
-} from "./FormatAccountPage";
+import { FormatAccountPage } from "./FormatAccountPage";
 
-export const RegisterPage = ({
-    onLogin,
-    onSwitch,
-}: AccountPageNavigationProps) => {
+export const RegisterPage = () => {
     return (
         <FormatAccountPage
-            onLogin={onLogin}
-            onSwitch={onSwitch}
             title={JOIN_THE_SOCIETY}
             subheader={CREATE_PORTFOLIO_IN_SECONDS}
             largeButtonText={CREATE_ACCOUNT}
-            smallButtonText={LOG_IN}
+            smallButtonText={LOGIN}
             belowButton={ACCOUNT_EXISTING_QUESTION}
             buttonLoadingText={CREATING_ACCOUNT_LOADING}
+            navigationPage={LOGIN_PAGE_NAVIGATION as Page}
         />
     );
 };

@@ -1,30 +1,25 @@
+import type { Page } from "../../interfaces/types";
 import {
     ENTER_CREDENTIALS_ACCESS_ACCOUNT,
-    LOG_IN,
     LOGGING_IN_LOADING,
+    LOGIN,
     NO_ACCOUNT_QUESTION,
+    REGISTER_PAGE_NAVIGATION,
     SIGN_UP,
     WELCOME_BACK,
 } from "../strings";
-import {
-    FormatAccountPage,
-    type AccountPageNavigationProps,
-} from "./FormatAccountPage";
+import { FormatAccountPage } from "./FormatAccountPage";
 
-export const LoginPage = ({
-    onLogin,
-    onSwitch,
-}: AccountPageNavigationProps) => {
+export const LoginPage = () => {
     return (
         <FormatAccountPage
-            onLogin={onLogin}
-            onSwitch={onSwitch}
             title={WELCOME_BACK}
             subheader={ENTER_CREDENTIALS_ACCESS_ACCOUNT}
-            largeButtonText={LOG_IN}
+            largeButtonText={LOGIN}
             smallButtonText={SIGN_UP}
             belowButton={NO_ACCOUNT_QUESTION}
             buttonLoadingText={LOGGING_IN_LOADING}
+            navigationPage={REGISTER_PAGE_NAVIGATION as Page}
         />
     );
 };

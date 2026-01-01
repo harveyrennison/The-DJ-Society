@@ -21,6 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { useUrlBuilder } from "../../context/NavigationContext";
 import type { DJ, Gig, Track } from "../../interfaces/userTypes";
 import {
     BACK_TO_DIRECTORY,
@@ -35,14 +36,13 @@ import {
 
 export interface ProfilePageProps {
     dj: DJ;
-    onBack: () => void;
     isOwner: boolean;
 }
 
-export const ProfilePage = ({ dj, onBack, isOwner }: ProfilePageProps) => {
-    // Use optional chaining since tracks/upcoming are optional in the DJ interface
+export const ProfilePage = ({ dj, isOwner }: ProfilePageProps) => {
     const tracks: Track[] = dj.tracks || [];
     const upcoming: Gig[] = dj.upcoming || [];
+    const { navigate } = useUrlBuilder();
 
     return (
         <Box sx={{ minHeight: "100vh", pb: 8 }}>
@@ -75,7 +75,7 @@ export const ProfilePage = ({ dj, onBack, isOwner }: ProfilePageProps) => {
                 />
                 <Button
                     startIcon={isOwner ? <Edit /> : <Search />}
-                    onClick={onBack}
+                    onClick={() => navigate("home")}
                     sx={{
                         position: "absolute",
                         top: 100,

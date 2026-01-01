@@ -105,7 +105,7 @@ export interface Track {
 }
 
 export interface DJ {
-    id: number;
+    djId: string;
     name: string;
     handle: string;
     genre: string;
@@ -118,7 +118,7 @@ export interface DJ {
 }
 
 export interface User {
-    userId: number;
+    userId: string;
     email: string;
     password: string;
     token: string;

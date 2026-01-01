@@ -1,8 +1,6 @@
 import { ListItemIcon, ListItemText, MenuItem } from "@mui/material";
-
-// 🔑 Import the session management handler
 import { Logout } from "@mui/icons-material";
-import { LOG_OUT } from "../../strings";
+import { LOGOUT } from "../../strings";
 
 export interface DesktopLogoutMenuItemProps {
     onClose: () => void;
@@ -23,7 +21,7 @@ export const DesktopLogoutMenuItem = ({
             <ListItemIcon>
                 <Logout fontSize="small" color="error" />
             </ListItemIcon>
-            <ListItemText sx={{ color: "error.main" }}>{LOG_OUT}</ListItemText>
+            <ListItemText sx={{ color: "error.main" }}>{LOGOUT}</ListItemText>
         </MenuItem>
     );
 };

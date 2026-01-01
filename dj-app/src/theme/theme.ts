@@ -105,3 +105,11 @@ export const AccountSection = styled(Box)(({ theme }) => ({
         ${alpha(theme.palette.primary.main, 0.04)}
     )`,
 }));
+
+export const SettingsSection = styled(Box)(({ theme }) => ({
+    background: `linear-gradient(to top left, 
+        ${alpha(theme.palette.primary.main, 0.04)}, 
+        ${alpha(theme.palette.primary.main, 0.08)} 50%, 
+        ${alpha(theme.palette.primary.main, 0.04)}
+    )`,
+}));

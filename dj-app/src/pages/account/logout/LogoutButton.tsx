@@ -1,15 +1,11 @@
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Button, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
-
-// 🔑 Import the session management handler
-import { handleClientSideLogout } from "../../../session/manager";
-import { LOG_OUT, LOGGING_OUT_LOADING } from "../../strings";
+import { useAuth } from "../../../context/AuthContext"; 
+import { LOGGING_OUT_LOADING, LOGOUT } from "../../strings";
 
 interface LogoutButtonProps {
-    // Function to run after successful client-side cleanup (e.g., redirect or update state)
-    onLogoutSuccess: () => void;
-    // New: Allow passing fullWidth property for mobile integration
+    onLogoutSuccess?: () => void;
     fullWidth?: boolean;
 }
 
@@ -17,20 +13,16 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
     onLogoutSuccess,
     fullWidth,
 }) => {
+    const { logout } = useAuth();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleLogoutClick = async () => {
         setIsLoggingOut(true);
         try {
-            // This function handles the server call (LogoutUser) and local storage cleanup
-            await handleClientSideLogout();
-
-            // Run the callback function provided by the parent (e.g., set user state to null)
-            onLogoutSuccess();
+            await logout();
+            if (onLogoutSuccess) onLogoutSuccess();
         } catch (error) {
-            console.error("An unexpected error occurred during logout:", error);
-            // Even if there's an unexpected error, clear client state
-            onLogoutSuccess();
+            console.error("Logout failed:", error);
         } finally {
             setIsLoggingOut(false);
         }
@@ -39,19 +31,15 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
     return (
         <Button
             variant="outlined"
-            color="inherit"
+            color="error"
             onClick={handleLogoutClick}
             disabled={isLoggingOut}
             startIcon={
-                isLoggingOut ? (
-                    <CircularProgress size={20} color="inherit" />
-                ) : (
-                    <LogoutIcon />
-                )
+                isLoggingOut ? <CircularProgress size={20} /> : <LogoutIcon />
             }
             fullWidth={fullWidth}
         >
-            {isLoggingOut ? LOGGING_OUT_LOADING : LOG_OUT}
+            {isLoggingOut ? LOGGING_OUT_LOADING : LOGOUT}
         </Button>
     );
 };

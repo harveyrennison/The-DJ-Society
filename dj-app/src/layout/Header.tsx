@@ -1,79 +1,70 @@
-import {
-    Close as CloseIcon,
-    GraphicEq,
-    LibraryMusic,
-    Logout,
-    Menu as MenuIcon,
-    Person,
-    Settings,
-} from "@mui/icons-material";
-import {
-    AppBar,
-    Avatar,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    Drawer,
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    Toolbar,
-    Typography,
-} from "@mui/material";
 import React, { useState } from "react";
 
+import GraphicEq from "@mui/icons-material/GraphicEq";
+import LibraryMusic from "@mui/icons-material/LibraryMusic";
+import MenuIcon from "@mui/icons-material/Menu";
+import Person from "@mui/icons-material/Person";
+import Settings from "@mui/icons-material/Settings";
+import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Stack from "@mui/material/Stack";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import {
+    CANCEL,
+    CONFIRM_LOGOUT,
+    DJ_CAPS,
+    JOIN_NOW,
+    LOGIN,
+    LOGOUT,
+    LOGOUT_ACCOUNT_QUESTION,
+    PROFILE,
+    SETTINGS,
+    SOCIETY_CAPS,
+} from "../constants/strings";
+import { useAuth } from "../context/AuthContext";
+import { useUrlBuilder } from "../context/NavigationContext";
+import { DialogHelper } from "../helpers/DialogHelper";
 import type { Page } from "../interfaces/types";
-import type { User } from "../interfaces/userTypes";
 import { DesktopLogoutMenuItem } from "../pages/account/logout/DesktopLogout";
-import { LogoutButton } from "../pages/account/logout/LogoutButton";
-import { handleClientSideLogout } from "../session/manager";
-import { GradientText, theme } from "../theme/theme";
+import { GradientText } from "../theme/theme";
 
-// --- Header Component ---
-
-export interface HeaderProps {
-    user: User | null;
-    onNavigate: (page: Page) => void;
-    onLogout: () => void;
-}
-
-export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
+export const Header = () => {
+    const { navigate } = useUrlBuilder();
+    const { user, logout } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const handleMenu = (event: React.MouseEvent<HTMLElement>) =>
-        setAnchorEl(event.currentTarget);
+    const handleMenu = (e: React.MouseEvent<HTMLElement>) =>
+        setAnchorEl(e.currentTarget);
     const handleClose = () => setAnchorEl(null);
     const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-
-    const handleConfirmOpen = () => setConfirmOpen(true);
-    const handleConfirmClose = () => setConfirmOpen(false);
+    const handleCloseAndNavigate = (pageNavigation: Page) => {
+        handleClose();
+        navigate(pageNavigation);
+    };
 
     const handleConfirmLogout = async () => {
-        setConfirmOpen(false); // Close the modal
+        setDialogOpen(false);
         setIsLoggingOut(true);
 
         try {
-            await handleClientSideLogout();
-            onLogout();
+            await logout();
+            setDialogOpen(false);
+            navigate("home");
         } catch (error) {
-            console.error(
-                "Logout error (local session cleared anyway):",
-                error
-            );
-            onLogout();
+            console.error("Logout failed:", error);
         } finally {
             setIsLoggingOut(false);
         }
@@ -89,15 +80,14 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         {/* Logo */}
-                        <Box
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            mr={4}
                             sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexGrow: { xs: 1, md: 0 },
-                                mr: 4,
                                 cursor: "pointer",
                             }}
-                            onClick={() => onNavigate("home")}
+                            onClick={() => navigate("home")}
                         >
                             <LibraryMusic
                                 sx={{
@@ -117,21 +107,15 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                     textDecoration: "none",
                                 }}
                             >
-                                DJ<GradientText>SOCIETY</GradientText>
+                                {DJ_CAPS}
+                                <GradientText>{SOCIETY_CAPS}</GradientText>
                             </Typography>
-                        </Box>
-
-                        {/* Desktop Nav */}
-                        <Box
-                            sx={{
-                                flexGrow: 1,
-                                display: { xs: "none", md: "flex" },
-                            }}
-                        >
+                        </Stack>
+                        <Box flexGrow={1}>
                             {navItems.map((item) => (
                                 <Button
                                     key={item.label}
-                                    onClick={() => onNavigate(item.value)}
+                                    onClick={() => navigate(item.value)}
                                     sx={{
                                         my: 2,
                                         color: "text.secondary",
@@ -143,15 +127,11 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                 </Button>
                             ))}
                         </Box>
-
-                        {/* User Menu / Auth Buttons */}
-                        <Box
-                            sx={{
-                                flexGrow: 0,
-                                display: { xs: "none", md: "flex" },
-                                alignItems: "center",
-                                gap: 2,
-                            }}
+                        <Stack
+                            direction="row"
+                            flexGrow={0}
+                            alignItems="center"
+                            spacing={2}
                         >
                             {user ? (
                                 <>
@@ -159,7 +139,7 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                         startIcon={<GraphicEq />}
                                         variant="outlined"
                                         color="primary"
-                                        onClick={() => onNavigate("create")}
+                                        onClick={() => navigate("create")}
                                         size="small"
                                     >
                                         Publish Mix
@@ -191,41 +171,47 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                         }}
                                         open={Boolean(anchorEl)}
                                         onClose={handleClose}
-                                        PaperProps={{
-                                            sx: {
-                                                bgcolor: "background.paper",
-                                                border: "1px solid rgba(255,255,255,0.1)",
+                                        slotProps={{
+                                            paper: {
+                                                sx: {
+                                                    bgcolor: "background.paper",
+                                                    border: "1px solid rgba(255,255,255,0.1)",
+                                                },
                                             },
                                         }}
                                     >
                                         <MenuItem
-                                            onClick={() => {
-                                                handleClose();
-                                                onNavigate("profile");
-                                            }}
+                                            onClick={() =>
+                                                handleCloseAndNavigate(
+                                                    "profile"
+                                                )
+                                            }
                                         >
                                             <ListItemIcon>
                                                 <Person fontSize="small" />
                                             </ListItemIcon>
-                                            <ListItemText>Profile</ListItemText>
+                                            <ListItemText>
+                                                {PROFILE}
+                                            </ListItemText>
                                         </MenuItem>
                                         <MenuItem
-                                            onClick={() => {
-                                                handleClose();
-                                                onNavigate("create");
-                                            }}
+                                            onClick={() =>
+                                                handleCloseAndNavigate("settings")
+                                            }
                                         >
                                             <ListItemIcon>
                                                 <Settings fontSize="small" />
                                             </ListItemIcon>
                                             <ListItemText>
-                                                Settings
+                                                {SETTINGS}
                                             </ListItemText>
                                         </MenuItem>
                                         <Divider />
                                         <DesktopLogoutMenuItem
                                             onClose={handleClose}
-                                            onOpenConfirm={handleConfirmOpen}
+                                            onOpenConfirm={() =>
+                                                setDialogOpen(true)
+                                            }
                                         />
                                     </Menu>
                                 </>
@@ -233,20 +219,20 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                 <>
                                     <Button
                                         color="inherit"
-                                        onClick={() => onNavigate("login")}
+                                        onClick={() => navigate("login")}
                                     >
-                                        Login
+                                        {LOGIN}
                                     </Button>
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => onNavigate("signup")}
+                                        onClick={() => navigate("signup")}
                                     >
-                                        Join Now
+                                        {JOIN_NOW}
                                     </Button>
                                 </>
                             )}
-                        </Box>
+                        </Stack>
 
                         {/* Mobile Menu Icon */}
                         <Box sx={{ display: { xs: "flex", md: "none" } }}>
@@ -262,7 +248,7 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                 </Container>
             </AppBar>
 
-            {/* Mobile Drawer (Using existing LogoutButton logic) */}
+            {/* Mobile Drawer (Using existing LogoutButton logic)
             <Drawer
                 variant="temporary"
                 anchor="right"
@@ -298,7 +284,7 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                             <ListItem key={item.label} disablePadding>
                                 <Button
                                     fullWidth
-                                    onClick={() => onNavigate(item.value)}
+                                    onClick={() => navigate(item.value)}
                                     sx={{ py: 1.5, color: "text.primary" }}
                                 >
                                     {item.label}
@@ -311,17 +297,14 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                 <ListItem disablePadding>
                                     <Button
                                         fullWidth
-                                        onClick={() => onNavigate("profile")}
+                                        onClick={() => navigate("profile")}
                                     >
-                                        My Profile
+                                        {MY_PROFILE}
                                     </Button>
                                 </ListItem>
                                 <ListItem disablePadding sx={{ px: 2, pb: 2 }}>
                                     <LogoutButton
-                                        onLogoutSuccess={() => {
-                                            onLogout();
-                                            handleDrawerToggle();
-                                        }}
+                                        onLogoutSuccess={handleDrawerToggle}
                                         fullWidth
                                     />
                                 </ListItem>
@@ -331,121 +314,35 @@ export const Header = ({ user, onNavigate, onLogout }: HeaderProps) => {
                                 <ListItem disablePadding>
                                     <Button
                                         fullWidth
-                                        onClick={() => onNavigate("login")}
+                                        onClick={() => navigate("login")}
                                     >
-                                        Login
+                                        {LOGIN}
                                     </Button>
                                 </ListItem>
                                 <ListItem disablePadding>
                                     <Button
                                         fullWidth
                                         variant="contained"
-                                        onClick={() => onNavigate("signup")}
+                                        onClick={() => navigate("signup")}
                                     >
-                                        Join Now
+                                        {JOIN_NOW}
                                     </Button>
                                 </ListItem>
                             </>
                         )}
                     </List>
                 </Box>
-            </Drawer>
-
-            {/* Logout Confirmation Dialog with modern styling */}
-            <Dialog
-                open={confirmOpen}
-                onClose={handleConfirmClose}
-                fullWidth
-                maxWidth="xs"
-                PaperProps={{
-                    sx: {
-                        bgcolor: "background.paper",
-                        // Enhanced border for a more defined look
-                        border: "1px solid",
-                        borderColor: "rgba(255,255,255,0.2)",
-                        borderRadius: theme.shape.borderRadius, // Use theme's border radius
-                        boxShadow: "0px 8px 24px rgba(0,0,0,0.5)", // Deeper shadow
-                        background: `linear-gradient(to bottom right, ${theme.palette.background.paper}, #1a1a2e 80%)`, // Subtle gradient background
-                        position: "relative", // Needed for pseudo-elements if we go with more complex border effects
-                    },
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        color: "primary.main", // Changed to primary for a "confirm" feel, not "error" yet
-                        fontWeight: "bold",
-                        fontSize: "1.4rem",
-                        pb: 1, // Less padding at bottom
-                    }}
-                >
-                    Confirm Logout
-                </DialogTitle>
-                <DialogContent sx={{ pb: 3 }}>
-                    {" "}
-                    {/* Increased bottom padding */}
-                    <Typography variant="body1" color="text.secondary">
-                        Are you sure you want to log out of your account?
-                    </Typography>
-                </DialogContent>
-                <DialogActions
-                    sx={{
-                        p: 2,
-                        justifyContent: "space-between",
-                        borderTop: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                >
-                    {" "}
-                    {/* Spaced out buttons, subtle divider */}
-                    <Button
-                        onClick={handleConfirmClose}
-                        color="inherit"
-                        disabled={isLoggingOut}
-                        sx={{
-                            // Custom style for cancel button
-                            textTransform: "none",
-                            fontWeight: "bold",
-                            "&:hover": {
-                                bgcolor: "rgba(255,255,255,0.08)",
-                            },
-                        }}
-                    >
-                        Cancel.
-                    </Button>
-                    <Button
-                        onClick={handleConfirmLogout}
-                        variant="contained"
-                        color="error" // Keep error for the "destructive" action
-                        startIcon={
-                            isLoggingOut ? (
-                                <CircularProgress size={20} color="inherit" />
-                            ) : (
-                                <Logout />
-                            )
-                        }
-                        disabled={isLoggingOut}
-                        sx={{
-                            textTransform: "none",
-                            fontWeight: "bold",
-                            py: 1, // Slightly more vertical padding
-                            px: 3, // More horizontal padding
-                            // Custom gradient for the button if desired, or stick to default contained
-                            background: isLoggingOut
-                                ? theme.palette.error.dark
-                                : `linear-gradient(45deg, ${theme.palette.error.main} 30%, #ff5252 90%)`,
-                            "&:hover": {
-                                boxShadow:
-                                    "0 3px 5px 2px rgba(255, 105, 135, .3)",
-                                // Keep background on hover for gradient effect
-                                background: isLoggingOut
-                                    ? theme.palette.error.dark
-                                    : `linear-gradient(45deg, ${theme.palette.error.dark} 30%, #ff6e6e 90%)`,
-                            },
-                        }}
-                    >
-                        {isLoggingOut ? "Logging Out..." : "Logout"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            </Drawer> */}
+            <DialogHelper
+                open={dialogOpen}
+                disabled={isLoggingOut}
+                dialogTitle={CONFIRM_LOGOUT}
+                dialogContent={LOGOUT_ACCOUNT_QUESTION}
+                buttonLeftText={CANCEL}
+                buttonRightText={LOGOUT}
+                buttonLeftPress={() => setDialogOpen(false)}
+                buttonRightPress={handleConfirmLogout}
+            />
         </>
     );
 };

@@ -1,17 +1,18 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { ChangeEvent, FormEvent } from "react";
-import React, { useState } from "react";
-import { saveSession } from "../../session/manager";
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useUrlBuilder } from "../../context/NavigationContext";
+import { validateAccountForm } from "../../helpers/AccountLoginValidationHelper";
+import { PasswordHelper } from "../../helpers/PasswordHelper";
+import type { Page } from "../../interfaces/types";
 import { AccountSection } from "../../theme/theme";
 import {
     EMAIL,
@@ -21,30 +22,27 @@ import {
 } from "../strings";
 import { LoginUser } from "./accountServices";
 
-export interface AccountPageNavigationProps {
-    onLogin: (token: string, userId: string) => void; // Function to be called on successful login
-    onSwitch: () => void;
-}
-
-export interface AccountPageProps extends AccountPageNavigationProps {
+export interface AccountPageProps {
     title: string;
     subheader: string;
     largeButtonText: string;
     smallButtonText: string;
     belowButton: string;
     buttonLoadingText: string;
+    navigationPage: Page;
 }
 
 export const FormatAccountPage = ({
-    onLogin,
-    onSwitch,
     title,
     subheader,
     largeButtonText,
     smallButtonText,
     belowButton,
     buttonLoadingText,
+    navigationPage,
 }: AccountPageProps) => {
+    const { navigate } = useUrlBuilder();
+    const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -53,18 +51,10 @@ export const FormatAccountPage = ({
     });
     const [formError, setFormError] = useState("");
 
-    // --- Handlers for UI state ---
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
     };
 
-    const handleMouseDownPassword = (
-        event: React.MouseEvent<HTMLButtonElement>
-    ) => {
-        event.preventDefault();
-    };
-
-    // --- Handlers for Form state ---
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({
@@ -76,60 +66,37 @@ export const FormatAccountPage = ({
         }
     };
 
-    // --- Validation and Submission Logic ---
-    const validate = () => {
-        if (!formData.email || !formData.password) {
-            setFormError("Please enter both email and password.");
-            return false;
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            setFormError("Please enter a valid email address.");
-            return false;
-        }
-        if (formData.password.length < 8) {
-            setFormError("Password must be at least 8 characters long.");
-            return false;
-        }
-        return true;
-    };
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setFormError("");
 
-        if (!validate()) {
+        const errorMessage = validateAccountForm(
+            formData.email,
+            formData.password
+        );
+
+        if (errorMessage) {
+            setFormError(errorMessage);
             return;
         }
 
         setIsLoading(true);
 
         try {
+            // 3. Call your backend service to get the tokens
             const data = await LoginUser(formData);
-            if (data.token && data.userId) {
-                saveSession(data);
-                onLogin(data.token, data.userId);
+
+            if (data.firebaseToken && data.userId) {
+                await login(data.firebaseToken, data.userId);
+                navigate("home");
             } else {
-                setFormError("Something went wrong. Received incomplete data.");
+                setFormError("Incomplete data received from server.");
             }
         } catch (error: any) {
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setFormError("Invalid email or password.");
-                } else if (error.response.status === 400) {
-                    setFormError(
-                        error.response.data.message ||
-                            "Invalid login data. Please check your inputs."
-                    );
-                } else {
-                    setFormError(
-                        `Login failed: ${error.response.statusText}. Please try again.`
-                    );
-                }
+            if (error.response?.status === 401) {
+                setFormError("Invalid email or password.");
             } else {
-                setFormError(
-                    "Unable to connect to the server. Please check your internet connection."
-                );
+                setFormError("An unexpected error occurred. Please try again.");
             }
         } finally {
             setIsLoading(false);
@@ -179,34 +146,24 @@ export const FormatAccountPage = ({
                             <TextField
                                 label={PASSWORD_CAPATILISED}
                                 name={PASSWORD}
-                                type={showPassword ? "text" : PASSWORD}
+                                type={showPassword ? "text" : "password"}
                                 fullWidth
                                 variant="outlined"
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <PasswordHelper
+                                                show={showPassword}
+                                                onToggle={
                                                     handleClickShowPassword
                                                 }
-                                                onMouseDown={
-                                                    handleMouseDownPassword
-                                                }
-                                                edge="end"
                                                 disabled={isLoading}
-                                            >
-                                                {showPassword ? (
-                                                    <VisibilityOff />
-                                                ) : (
-                                                    <Visibility />
-                                                )}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
+                                            />
+                                        ),
+                                    },
                                 }}
                             />
 
@@ -229,7 +186,7 @@ export const FormatAccountPage = ({
                             {belowButton}
                             <Button
                                 size="small"
-                                onClick={onSwitch}
+                                onClick={() => navigate(navigationPage)}
                                 sx={{ ml: 1, minWidth: "auto", p: 0 }}
                                 disabled={isLoading}
                             >

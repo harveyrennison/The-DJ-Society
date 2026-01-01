@@ -53,12 +53,14 @@ export const DirectoryPage = ({ onSelectDj }: DirectoryPageProps) => {
                         mb: 6,
                         "& .MuiOutlinedInput-root": { borderRadius: 4 },
                     }}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <Search color="primary" />
-                            </InputAdornment>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Search color="primary" />
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
 

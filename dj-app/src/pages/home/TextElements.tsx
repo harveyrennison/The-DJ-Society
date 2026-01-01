@@ -1,25 +1,35 @@
-import Button from "@mui/material/Button"
-import Chip from "@mui/material/Chip"
-import Stack from "@mui/material/Stack"
-import { CREATE_PORTFOLIO, EXPLORE_DJS, PERFORM, SHOWCASE, TOP_PLATFORM_FOR_DJS, UNITE_CREATE } from "../strings"
-import PlayArrow from "@mui/icons-material/PlayArrow"
-import Typography from "@mui/material/Typography"
-import { GradientText } from "../../theme/theme"
-import GraphicEq from "@mui/icons-material/GraphicEq"
-import type { HomePageProps } from "./HomePage"
+import GraphicEq from "@mui/icons-material/GraphicEq";
+import PlayArrow from "@mui/icons-material/PlayArrow";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { useUrlBuilder } from "../../context/NavigationContext";
+import { GradientText } from "../../theme/theme";
+import {
+    CREATE_PORTFOLIO,
+    EXPLORE_DJS,
+    PERFORM,
+    SHOWCASE,
+    TOP_PLATFORM_FOR_DJS,
+    UNITE_CREATE,
+} from "../strings";
 
-export const TextElements = ({onNavigate} : HomePageProps) => {
+export const TextElements = () => {
+    const { navigate } = useUrlBuilder();
     return (
-        <><Chip
-            icon={<GraphicEq
-                sx={{ color: "#00e5ff !important" }} />}
-            label={TOP_PLATFORM_FOR_DJS}
-            variant="outlined"
-            sx={{
-                borderColor: "rgba(0, 229, 255, 0.3)",
-                color: "primary.main",
-                mb: 3,
-            }} /><Typography
+        <>
+            <Chip
+                icon={<GraphicEq sx={{ color: "#00e5ff !important" }} />}
+                label={TOP_PLATFORM_FOR_DJS}
+                variant="outlined"
+                sx={{
+                    borderColor: "rgba(0, 229, 255, 0.3)",
+                    color: "primary.main",
+                    mb: 3,
+                }}
+            />
+            <Typography
                 variant="h1"
                 mb={2}
                 sx={{
@@ -29,7 +39,8 @@ export const TextElements = ({onNavigate} : HomePageProps) => {
             >
                 {UNITE_CREATE} <br />
                 <GradientText>{PERFORM}</GradientText>
-            </Typography><Typography
+            </Typography>
+            <Typography
                 variant="h6"
                 color="text.secondary"
                 maxWidth="600px"
@@ -37,12 +48,13 @@ export const TextElements = ({onNavigate} : HomePageProps) => {
                 mb={4}
             >
                 {SHOWCASE}
-            </Typography><Stack direction="row" spacing={2}>
+            </Typography>
+            <Stack direction="row" spacing={2}>
                 <Button
                     variant="contained"
                     size="large"
                     endIcon={<PlayArrow />}
-                    onClick={() => onNavigate("home")}
+                    onClick={() => navigate("home")}
                     sx={{ py: 1.5, px: 4 }}
                 >
                     {EXPLORE_DJS}
@@ -50,7 +62,7 @@ export const TextElements = ({onNavigate} : HomePageProps) => {
                 <Button
                     variant="outlined"
                     size="large"
-                    onClick={() => onNavigate("signup")}
+                    onClick={() => navigate("signup")}
                     sx={{
                         py: 1.5,
                         px: 4,
@@ -59,6 +71,7 @@ export const TextElements = ({onNavigate} : HomePageProps) => {
                 >
                     {CREATE_PORTFOLIO}
                 </Button>
-            </Stack></>
-    )
-}
+            </Stack>
+        </>
+    );
+};

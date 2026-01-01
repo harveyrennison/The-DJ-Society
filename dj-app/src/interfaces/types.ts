@@ -6,20 +6,16 @@ export type Page =
     | "directory"
     | "dj-profile"
     | "profile"
+    | "settings"
     | "login"
     | "signup"
     | "events"
     | "create";
 
 export interface AuthContextType {
-    /** The currently authenticated Firebase User object, or null if logged out. */
     user: User | null;
-    /** The user's ID string (derived from user.uid) or null. */
-    userId: number | null;
-    /** True if the authentication state is currently being loaded/initialized. */
+    userId: string | null;
     loading: boolean;
-    /** Placeholder function for external login flow (relies on Firebase Auth state change). */
-    login: (token: string, userId: number) => Promise<void>;
-    /** Function to sign out the current user. */
+    login: (token: string, userId: string) => Promise<void>;
     logout: () => Promise<void>;
 }
