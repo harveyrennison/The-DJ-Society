@@ -8,7 +8,7 @@ export const HomePage = () => {
     return (
         <HeroSection>
             <Container maxWidth="lg">
-                <Grid container spacing={4} alignItems="center">
+                <Grid container spacing={4} alignItems="center" py={12}>
                     <Grid>
                         <TextElements />
                     </Grid>

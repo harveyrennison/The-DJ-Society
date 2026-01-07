@@ -3,6 +3,7 @@ import type { User } from "firebase/auth";
 
 export type Page =
     | "home"
+    | "about"
     | "directory"
     | "dj-profile"
     | "profile"

@@ -57,9 +57,7 @@ export const theme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundImage: "none",
                     backgroundColor: alpha("#0a0b14", 0.8),
-                    backdropFilter: "blur(20px)",
                     borderBottom: "1px solid rgba(255,255,255,0.05)",
                 },
             },
@@ -76,11 +74,6 @@ export const GradientText = styled("span")(({ theme }) => ({
 }));
 
 export const HeroSection = styled(Box)(({ theme }) => ({
-    minHeight: "91vh",
-    display: "flex",
-    alignItems: "center",
-    position: "relative",
-    overflow: "hidden",
     background: `radial-gradient(circle at 10% 20%, ${alpha(
         theme.palette.secondary.main,
         0.15
@@ -93,12 +86,6 @@ export const HeroSection = styled(Box)(({ theme }) => ({
 
 // --- 3. SignupSection (Subtle linear gradient using Primary color) ---
 export const AccountSection = styled(Box)(({ theme }) => ({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "91vh",
-    // Using a linear gradient with low alpha values of the primary color
-    // creates a constant, slightly changing color wash, distinct from Login.
     background: `linear-gradient(to top left, 
         ${alpha(theme.palette.primary.main, 0.04)}, 
         ${alpha(theme.palette.primary.main, 0.08)} 50%, 

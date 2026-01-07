@@ -1,18 +1,20 @@
-import { Box, CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { useState } from "react";
 
+import CssBaseline from "@mui/material/CssBaseline";
+import Toolbar from "@mui/material/Toolbar";
 import { useUrlBuilder } from "./context/NavigationContext";
 import { DJS } from "./data/mockData";
 import type { DJ } from "./interfaces/userTypes";
 import { Header } from "./layout/Header";
+import AboutPage from "./pages/about/AboutPage";
 import { LoginPage } from "./pages/account/LoginPage";
 import { RegisterPage } from "./pages/account/RegisterPage";
 import { DirectoryPage } from "./pages/Directory";
 import { HomePage } from "./pages/home/HomePage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
-import { theme } from "./theme/theme";
 import { SettingsPage } from "./pages/settings/SettingsPage";
+import { theme } from "./theme/theme";
 
 export const App = () => {
     const { currentPage, navigate } = useUrlBuilder(); // Hook replaces local state
@@ -32,13 +34,13 @@ export const App = () => {
         switch (currentPage) {
             case "home":
                 return <HomePage />;
+            case "about":
+                return <AboutPage />;
             case "directory":
                 return <DirectoryPage onSelectDj={handleViewDj} />;
             case "dj-profile":
-                // TypeScript guarantees selectedDj is not null here due to the check above
                 return <ProfilePage dj={selectedDj!} isOwner={false} />;
             case "profile":
-                // Mocking the logged-in user's profile view
                 const myProfile: DJ = { ...DJS[0], name: "ZENIATH" };
                 return <ProfilePage dj={myProfile} isOwner={true} />;
             case "settings":
@@ -46,7 +48,6 @@ export const App = () => {
             case "login":
                 return <LoginPage />;
             case "signup":
-                // onSwitch navigates to the login page
                 return <RegisterPage />;
             default:
                 return <HomePage />;
@@ -56,18 +57,9 @@ export const App = () => {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box
-                sx={{
-                    bgcolor: "background.default",
-                    minHeight: "100vh",
-                    color: "text.primary",
-                }}
-            >
-                <Header />
-                <Box component="main" sx={{ pt: { xs: "56px", sm: "64px" } }}>
-                    {renderPage()}
-                </Box>
-            </Box>
+            <Header />
+            <Toolbar />
+            {renderPage()}
         </ThemeProvider>
     );
 };

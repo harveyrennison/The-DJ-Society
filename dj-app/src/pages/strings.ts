@@ -53,3 +53,11 @@ export const LAST_NAME = "Last Name";
 export const UPDATE_PASSWORD_MESSAGE =
     "Update your password to keep your account secure.";
 export const USER_SETTINGS = "User Settings";
+
+export const DEFAULT_IMAGE_ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+];
+
+export const SAVING_LOADING = "Saving..."

@@ -1,7 +1,15 @@
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
-export const NotificationSettings = () => {
+interface NotificationSettingsProps {
+    onRegisterSave: (fn: () => Promise<void>) => void;
+    isSaving: boolean;
+}
+
+export const NotificationSettings = ({
+    onRegisterSave,
+    isSavingChanges,
+}: NotificationSettingsProps) => {
     return (
         <Paper
             sx={{

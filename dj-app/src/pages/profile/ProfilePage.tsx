@@ -1,16 +1,14 @@
-import {
-    CalendarMonth,
-    Edit,
-    Email,
-    Instagram,
-    LocationOn,
-    Person,
-    PlayArrow,
-    QueueMusic,
-    Search,
-    Twitter,
-    YouTube,
-} from "@mui/icons-material";
+import CalendarMonth from "@mui/icons-material/CalendarMonth";
+import Edit from "@mui/icons-material/Edit";
+import Email from "@mui/icons-material/Email";
+import Instagram from "@mui/icons-material/Instagram";
+import LocationOn from "@mui/icons-material/LocationOn";
+import Person from "@mui/icons-material/Person";
+import PlayArrow from "@mui/icons-material/PlayArrow";
+import QueueMusic from "@mui/icons-material/QueueMusic";
+import Search from "@mui/icons-material/Search";
+import Twitter from "@mui/icons-material/Twitter";
+import YouTube from "@mui/icons-material/YouTube";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -90,7 +88,6 @@ export const ProfilePage = ({ dj, isOwner }: ProfilePageProps) => {
 
             <Container sx={{ mt: -10, position: "relative", zIndex: 2 }}>
                 <Grid container spacing={4}>
-                    {/* Left Column: Info */}
                     <Grid sx={{ pt: { xs: "12px", md: "4px" } }}>
                         <Card sx={{ p: 3, textAlign: "center" }}>
                             <Avatar

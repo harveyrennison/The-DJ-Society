@@ -11,30 +11,69 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { GradientText, SettingsSection } from "../../theme/theme";
 
+import CircularProgress from "@mui/material/CircularProgress";
 import {
     MANAGE_ACCOUNT_SETTINGS,
     SAVE_CHANGES,
+    SAVING_LOADING,
     SETTINGS,
     USER_SETTINGS,
 } from "../strings";
 import { GeneralSettings } from "./general/GeneralSettings";
 import { NotificationSettings } from "./notifications/NotificationSettings";
 import { SecuritySettings } from "./security/SecuritySettings";
-import { SETTINGS_MENU_ITEMS } from "./tab/settingsConfig";
+import { SETTINGS_MENU_ITEMS } from "./tab/SettingsConfig";
 import type { SettingsTab } from "./tab/settingsTypes";
 export const SettingsPage = () => {
     const [activeSection, setActiveSection] = useState<SettingsTab>("general");
+    const [isSaving, setIsSaving] = useState(false);
+    const [handleSaveTrigger, setHandleSaveTrigger] = useState<
+        () => Promise<void>
+    >(() => async () => {});
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await handleSaveTrigger();
+        } catch (error) {
+            console.error("Save failed:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const renderSection = () => {
         switch (activeSection) {
             case "general":
-                return <GeneralSettings />;
+                return (
+                    <GeneralSettings
+                        onRegisterSave={setHandleSaveTrigger}
+                        isSavingChanges={isSaving}
+                    />
+                );
+
             case "security":
-                return <SecuritySettings />;
+                return (
+                    <SecuritySettings
+                        onRegisterSave={setHandleSaveTrigger}
+                        isSavingChanges={isSaving}
+                    />
+                );
             case "notifications":
-                return <NotificationSettings />;
+                return (
+                    <NotificationSettings
+                        onRegisterSave={setHandleSaveTrigger}
+                        isSavingChanges={isSaving}
+                    />
+                );
             default:
-                return <GeneralSettings />;
+                return (
+                    <GeneralSettings
+                        onRegisterSave={setHandleSaveTrigger}
+                        isSavingChanges={isSaving}
+                    />
+                );
         }
     };
 
@@ -44,7 +83,6 @@ export const SettingsPage = () => {
                 direction="row"
                 sx={{ height: "calc(100vh - 64px)", overflow: "hidden" }}
             >
-                {/* Sidebar */}
                 <Box
                     sx={{
                         width: { xs: 0, md: 280 },
@@ -53,6 +91,9 @@ export const SettingsPage = () => {
                         bgcolor: "background.paper",
                         borderRight: "1px solid rgba(255, 255, 255, 0.05)",
                         p: 3,
+                        pointerEvents: isSaving ? "none" : "auto",
+                        opacity: isSaving ? 0.7 : 1,
+                        transition: "opacity 0.2s",
                     }}
                 >
                     <Typography
@@ -104,9 +145,7 @@ export const SettingsPage = () => {
                         ))}
                     </List>
                 </Box>
-
-                {/* Content */}
-                <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+                <Box flexGrow={1} sx={{ overflowY: "auto" }}>
                     <Container maxWidth="md" sx={{ py: 6 }}>
                         <Stack
                             direction="row"
@@ -125,16 +164,24 @@ export const SettingsPage = () => {
                             <Button
                                 variant="contained"
                                 size="large"
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                endIcon={
+                                    isSaving && (
+                                        <CircularProgress
+                                            size={20}
+                                            color="inherit"
+                                        />
+                                    )
+                                }
                                 sx={{
                                     px: 4,
-                                    display: { xs: "none", sm: "block" },
+                                    minWidth: "160px",
                                 }}
                             >
-                                {SAVE_CHANGES}
+                                {isSaving ? SAVING_LOADING : SAVE_CHANGES}
                             </Button>
                         </Stack>
-
-                        {/* Dynamic Section Rendered Here */}
                         {renderSection()}
                     </Container>
                 </Box>
