@@ -3,7 +3,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PasswordHelper } from "../../../helpers/PasswordHelper";
 import { validateNewPasswordForm } from "../../../helpers/validation";
 import { useForm } from "../../../hooks/useForm";
@@ -13,41 +13,48 @@ interface SecuritySettingsProps {
     onRegisterSave: (fn: () => Promise<void>) => void;
     isSavingChanges: boolean;
 }
-
 export const SecuritySettings = ({
     onRegisterSave,
     isSavingChanges,
 }: SecuritySettingsProps) => {
     const [showPassword, setShowPassword] = useState(false);
-    const { formData, formError, setFormError, handleChange } = useForm({
-        password: "",
-        newPassword: "",
-    });
+    const {
+        formData,
+        formErrors,
+        setFormErrors,
+        touched,
+        handleChange,
+        handleBlur,
+        touchAll,
+    } = useForm(
+        {
+            password: "",
+            newPassword: "",
+        },
+        (values) => validateNewPasswordForm(values.password, values.newPassword)
+    );
 
     const handleUpdate = async () => {
-        setFormError("");
+        const errors = touchAll();
 
-        const error = validateNewPasswordForm(
-            formData.password,
-            formData.newPassword
-        );
-
-        if (error) {
-            setFormError(error);
-            return;
-        }
+        if (Object.keys(errors).length > 0) return;
 
         try {
-            console.log("Saving Security Settings...", formData);
-            // API Call here
+            console.log("Saving...", formData);
+            // Add your API call here
         } catch (err) {
-            setFormError("Failed to update password.");
+            setFormErrors({ general: "Failed to update password." });
         }
     };
 
+    const saveRef = useRef(handleUpdate);
     useEffect(() => {
-        onRegisterSave(() => handleUpdate());
-    }, [formData]);
+        saveRef.current = handleUpdate;
+    });
+
+    useEffect(() => {
+        onRegisterSave(async () => await saveRef.current());
+    }, [onRegisterSave]);
 
     return (
         <Paper
@@ -63,16 +70,38 @@ export const SecuritySettings = ({
             <Typography variant="body2" color="text.secondary" mb={3}>
                 {UPDATE_PASSWORD_MESSAGE}
             </Typography>
-            {formError && (
+
+            {formErrors.general && (
                 <Alert severity="error" sx={{ mb: 2 }}>
-                    {formError}
+                    {formErrors.general}
                 </Alert>
             )}
+
             <Stack spacing={3}>
                 <TextField
                     fullWidth
+                    name="password"
+                    label="Current Password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.password && !!formErrors.password}
+                    helperText={touched.password && formErrors.password}
+                    disabled={isSavingChanges}
+                />
+
+                <TextField
+                    fullWidth
+                    name="newPassword"
                     label="New Password"
                     type={showPassword ? "text" : "password"}
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.newPassword && !!formErrors.newPassword}
+                    helperText={touched.newPassword && formErrors.newPassword}
+                    disabled={isSavingChanges}
                     slotProps={{
                         input: {
                             endAdornment: (
@@ -81,15 +110,11 @@ export const SecuritySettings = ({
                                     onToggle={() =>
                                         setShowPassword(!showPassword)
                                     }
+                                    disabled={isSavingChanges}
                                 />
                             ),
                         },
                     }}
-                />
-                <TextField
-                    fullWidth
-                    label="Confirm New Password"
-                    type={showPassword ? "text" : "password"}
                 />
             </Stack>
         </Paper>

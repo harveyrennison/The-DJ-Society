@@ -15,4 +15,5 @@ export const DJ_CAPS = "DJ";
 export const SOCIETY_CAPS = "SOCIETY";
 export const PASSWORD_LENGTH = 8;
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const NAME_REGEX = /^[a-zA-Z\s'-]*$/;
+export const NAME_REGEX =
+    /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;

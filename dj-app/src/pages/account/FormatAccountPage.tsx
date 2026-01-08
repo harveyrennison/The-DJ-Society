@@ -46,10 +46,17 @@ export const FormatAccountPage = ({
     const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { formData, formError, setFormError, handleChange } = useForm({
-        email: "",
-        password: "",
-    });
+    const {
+        formData,
+        formErrors,
+        setFormErrors,
+        handleChange,
+        handleBlur,
+        touched,
+        touchAll,
+    } = useForm({ email: "", password: "" }, (values) =>
+        validateAccountForm(values.email, values.password)
+    );
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -57,17 +64,9 @@ export const FormatAccountPage = ({
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setFormError("");
+        const errors = touchAll();
 
-        const errorMessage = validateAccountForm(
-            formData.email,
-            formData.password
-        );
-
-        if (errorMessage) {
-            setFormError(errorMessage);
-            return;
-        }
+        if (Object.keys(errors).length > 0) return;
 
         setIsLoading(true);
 
@@ -78,30 +77,30 @@ export const FormatAccountPage = ({
                 await login(data.firebaseToken, data.userId);
                 navigate("home");
             } else {
-                setFormError("Incomplete data received from server.");
+                setFormErrors({
+                    general: "Incomplete data received from server.",
+                });
             }
         } catch (error: any) {
             if (error.response?.status === 401) {
-                setFormError("Invalid email or password.");
+                setFormErrors({ general: "Invalid email or password." });
             } else {
-                setFormError("An unexpected error occurred. Please try again.");
+                setFormErrors({
+                    general: "An unexpected error occurred. Please try again.",
+                });
             }
         } finally {
             setIsLoading(false);
         }
     };
 
-
-    
     return (
         <AccountSection>
             <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    minHeight: "91vh", // This forces the section to fill the screen
-                }}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minHeight="91vh"
             >
                 <Card sx={{ maxWidth: 400, width: "100%", p: 3 }}>
                     <CardContent>
@@ -127,9 +126,9 @@ export const FormatAccountPage = ({
                             onSubmit={handleSubmit}
                             noValidate
                         >
-                            {formError && (
+                            {formErrors.general && (
                                 <Alert severity="error" sx={{ mb: 2 }}>
-                                    {formError}
+                                    {formErrors.general}
                                 </Alert>
                             )}
 
@@ -139,10 +138,14 @@ export const FormatAccountPage = ({
                                     name={EMAIL}
                                     fullWidth
                                     variant="outlined"
-                                    type={EMAIL}
                                     value={formData.email}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     required
+                                    error={touched.email && !!formErrors.email}
+                                    helperText={
+                                        touched.email && formErrors.email
+                                    }
                                 />
 
                                 <TextField
@@ -151,9 +154,17 @@ export const FormatAccountPage = ({
                                     type={showPassword ? "text" : "password"}
                                     fullWidth
                                     variant="outlined"
+                                    required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    required
+                                    onBlur={handleBlur}
+                                    error={
+                                        touched.password &&
+                                        !!formErrors.password
+                                    }
+                                    helperText={
+                                        touched.password && formErrors.password
+                                    }
                                     slotProps={{
                                         input: {
                                             endAdornment: (

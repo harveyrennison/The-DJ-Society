@@ -1,5 +1,4 @@
 import { CloudUpload } from "@mui/icons-material";
-import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -48,36 +47,42 @@ export const GeneralSettings = ({
         allowedTypes: DEFAULT_IMAGE_ALLOWED_TYPES,
     });
 
-    const { formData, formError, setFormError, handleChange } = useForm({
-        firstName: "Zeniath",
-        lastName: "Producer",
-        email: "zeniath@djsociety.com",
-    });
+    const {
+        formData,
+        formErrors,
+        setFormErrors,
+        handleChange,
+        handleBlur,
+        touched,
+        touchAll,
+    } = useForm(
+        {
+            firstName: "Zeniath",
+            lastName: "Producer",
+            email: "zeniath@djsociety.com",
+        },
+        (values) =>
+            validateGeneralSettings(
+                values.firstName,
+                values.lastName,
+                values.email
+            )
+    );
 
     const handleUpdate = async () => {
-        const errorMessage = validateGeneralSettings(
-            formData.firstName,
-            formData.lastName,
-            formData.email
-        );
+        const errors = touchAll();
 
-        if (errorMessage) {
-            setFormError(errorMessage);
-            return;
-        }
+        if (Object.keys(errors).length > 0) return;
 
         try {
-            setFormError("");
             if (selectedFile) {
-                console.log("Uploading file to server now:", selectedFile.name);
-                // Example: const formData = new FormData();
-                // formData.append('file', selectedFile);
-                // await axios.post('/upload', formData);
+                console.log("Uploading file:", selectedFile.name);
             }
-
             console.log("Saving General Info...", formData);
         } catch (error) {
-            setFormError("Failed to save changes. Please try again.");
+            setFormErrors({
+                form: "Failed to save changes. Please try again.",
+            });
         }
     };
 
@@ -185,45 +190,40 @@ export const GeneralSettings = ({
                     {GENERAL_INFO}
                 </Typography>
                 <Stack spacing={3}>
-                    {formError && (
-                        <Alert severity="error" sx={{ mb: 2 }}>
-                            {formError}
-                        </Alert>
-                    )}
-                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                    <Stack direction="row" spacing={2}>
                         <TextField
                             fullWidth
                             name="firstName"
                             label={FIRST_NAME}
                             value={formData.firstName}
                             onChange={handleChange}
-                            error={
-                                !!formError &&
-                                formError.toLowerCase().includes("name")
+                            onBlur={handleBlur}
+                            error={touched.firstName && !!formErrors.firstName}
+                            helperText={
+                                touched.firstName && formErrors.firstName
                             }
                         />
                         <TextField
                             fullWidth
-                            label={LAST_NAME}
                             name="lastName"
+                            label={LAST_NAME}
                             value={formData.lastName}
                             onChange={handleChange}
-                            error={
-                                !!formError &&
-                                formError.toLowerCase().includes("name")
-                            }
+                            onBlur={handleBlur}
+                            error={touched.lastName && !!formErrors.lastName}
+                            helperText={touched.lastName && formErrors.lastName}
                         />
                     </Stack>
                     <TextField
                         fullWidth
                         label={EMAIL_ADDRESS}
                         name="email"
+                        required
                         value={formData.email}
                         onChange={handleChange}
-                        error={
-                            !!formError &&
-                            formError.toLowerCase().includes("email")
-                        }
+                        onBlur={handleBlur}
+                        error={touched.email && !!formErrors.email}
+                        helperText={touched.email && formErrors.email}
                     />
                 </Stack>
             </Paper>

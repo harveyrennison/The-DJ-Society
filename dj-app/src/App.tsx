@@ -7,7 +7,7 @@ import { useUrlBuilder } from "./context/NavigationContext";
 import { DJS } from "./data/mockData";
 import type { DJ } from "./interfaces/userTypes";
 import { Header } from "./layout/Header";
-import AboutPage from "./pages/about/AboutPage";
+import { AboutPage } from "./pages/about/AboutPage";
 import { LoginPage } from "./pages/account/LoginPage";
 import { RegisterPage } from "./pages/account/RegisterPage";
 import { DirectoryPage } from "./pages/Directory";
