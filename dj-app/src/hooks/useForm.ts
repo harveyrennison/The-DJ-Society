@@ -20,6 +20,10 @@ export const useForm = <T extends Record<string, any>>(
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const setFieldValue = (name: keyof T, value: any) => {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
     const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
         const { name } = e.target;
         setTouched((prev) => ({ ...prev, [name]: true }));
@@ -44,6 +48,7 @@ export const useForm = <T extends Record<string, any>>(
         touched,
         setTouched,
         handleChange,
+        setFieldValue,
         handleBlur,
         touchAll,
     };

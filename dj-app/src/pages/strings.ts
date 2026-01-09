@@ -39,7 +39,6 @@ export const NO_UPCOMING_GIGS = "No upcoming gigs listed";
 export const SETTINGS = "Settings";
 export const MANAGE_ACCOUNT_SETTINGS =
     "Manage your account settings and preferences.";
-("Update your personal information and security settings.");
 export const PROFILE_UPDATED_SUCCESS = "Profile updated successfully!";
 export const SECURITY = "Security";
 export const SAVE_CHANGES = "Save Changes";
@@ -51,8 +50,11 @@ export const GENERAL_INFO = "General Information";
 export const FIRST_NAME = "First Name";
 export const LAST_NAME = "Last Name";
 export const UPDATE_PASSWORD_MESSAGE =
-    "Update your password to keep your account secure.";
+    "Update your password to keep your account secure";
 export const USER_SETTINGS = "User Settings";
+export const DATE_OF_BIRTH = "Date of Birth";
+export const DOB = "dob";
+export const TODAYS_DATE_FORMATTED = new Date().toISOString().split("T")[0];
 
 export const DEFAULT_IMAGE_ALLOWED_TYPES = [
     "image/jpeg",
@@ -60,4 +62,4 @@ export const DEFAULT_IMAGE_ALLOWED_TYPES = [
     "image/png",
 ];
 
-export const SAVING_LOADING = "Saving..."
+export const SAVING_LOADING = "Saving...";

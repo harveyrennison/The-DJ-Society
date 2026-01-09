@@ -1,8 +1,9 @@
-import { ThemeProvider } from "@mui/material/styles";
-import { useState } from "react";
-
 import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useState } from "react";
 import { useUrlBuilder } from "./context/NavigationContext";
 import { DJS } from "./data/mockData";
 import type { DJ } from "./interfaces/userTypes";
@@ -17,8 +18,8 @@ import { SettingsPage } from "./pages/settings/SettingsPage";
 import { theme } from "./theme/theme";
 
 export const App = () => {
-    const { currentPage, navigate } = useUrlBuilder(); // Hook replaces local state
-    const [selectedDj, setSelectedDj] = useState<DJ | null>(DJS[0]); // Default to first DJ for initial state check
+    const { currentPage, navigate } = useUrlBuilder();
+    const [selectedDj, setSelectedDj] = useState<DJ | null>(DJS[0]);
 
     const handleViewDj = (dj: DJ) => {
         setSelectedDj(dj);
@@ -26,7 +27,6 @@ export const App = () => {
     };
 
     const renderPage = () => {
-        // Ensure a DJ is selected before attempting to render ProfilePage
         if (currentPage === "dj-profile" && !selectedDj) {
             return <DirectoryPage onSelectDj={handleViewDj} />;
         }
@@ -55,12 +55,14 @@ export const App = () => {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Header />
-            <Toolbar />
-            {renderPage()}
-        </ThemeProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Header />
+                <Toolbar />
+                {renderPage()}
+            </ThemeProvider>
+        </LocalizationProvider>
     );
 };
 

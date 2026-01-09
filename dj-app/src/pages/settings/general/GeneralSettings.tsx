@@ -8,11 +8,14 @@ import Stack from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useRef } from "react";
 import { useImageUpload } from "../../../helpers/useImageUpload";
 import { validateGeneralSettings } from "../../../helpers/validation";
 import { useForm } from "../../../hooks/useForm";
 import {
+    DATE_OF_BIRTH,
     DEFAULT_IMAGE_ALLOWED_TYPES,
     DELETE,
     EMAIL_ADDRESS,
@@ -52,6 +55,7 @@ export const GeneralSettings = ({
         formErrors,
         setFormErrors,
         handleChange,
+        setFieldValue,
         handleBlur,
         touched,
         touchAll,
@@ -60,12 +64,14 @@ export const GeneralSettings = ({
             firstName: "Zeniath",
             lastName: "Producer",
             email: "zeniath@djsociety.com",
+            dob: "1995-01-01",
         },
         (values) =>
             validateGeneralSettings(
                 values.firstName,
                 values.lastName,
-                values.email
+                values.email,
+                values.dob
             )
     );
 
@@ -186,7 +192,7 @@ export const GeneralSettings = ({
                     border: "1px solid rgba(255,255,255,0.05)",
                 }}
             >
-                <Typography variant="h6" sx={{ mb: 3 }}>
+                <Typography variant="h6" mb={3}>
                     {GENERAL_INFO}
                 </Typography>
                 <Stack spacing={3}>
@@ -202,6 +208,7 @@ export const GeneralSettings = ({
                             helperText={
                                 touched.firstName && formErrors.firstName
                             }
+                            disabled={isSavingChanges}
                         />
                         <TextField
                             fullWidth
@@ -212,6 +219,7 @@ export const GeneralSettings = ({
                             onBlur={handleBlur}
                             error={touched.lastName && !!formErrors.lastName}
                             helperText={touched.lastName && formErrors.lastName}
+                            disabled={isSavingChanges}
                         />
                     </Stack>
                     <TextField
@@ -224,6 +232,35 @@ export const GeneralSettings = ({
                         onBlur={handleBlur}
                         error={touched.email && !!formErrors.email}
                         helperText={touched.email && formErrors.email}
+                        disabled={isSavingChanges}
+                    />
+                    <DatePicker
+                        label={DATE_OF_BIRTH}
+                        format="DD/MM/YYYY"
+                        value={formData.dob ? dayjs(formData.dob) : null}
+                        onChange={(newValue: Dayjs | null) => {
+                            setFieldValue(
+                                "dob",
+                                newValue && newValue.isValid()
+                                    ? newValue.format("YYYY-MM-DD")
+                                    : ""
+                            );
+                        }}
+                        maxDate={dayjs()}
+                        slotProps={{
+                            actionBar: {
+                                actions: ["clear", "today"],
+                            },
+                            textField: {
+                                fullWidth: true,
+                                name: "dob",
+                                onBlur: (e: any) => handleBlur(e),
+                                error: touched.dob && !!formErrors.dob,
+                                helperText:
+                                    (touched.dob && formErrors.dob) || " ",
+                                disabled: isSavingChanges,
+                            },
+                        }}
                     />
                 </Stack>
             </Paper>

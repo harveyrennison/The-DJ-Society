@@ -100,7 +100,7 @@ export const SecuritySettings = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.newPassword && !!formErrors.newPassword}
-                    helperText={touched.newPassword && formErrors.newPassword}
+                    helperText={touched.newPassword && formErrors.newPassword}  
                     disabled={isSavingChanges}
                     slotProps={{
                         input: {
