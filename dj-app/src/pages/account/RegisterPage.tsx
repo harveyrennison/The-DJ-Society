@@ -20,6 +20,7 @@ export const RegisterPage = () => {
             belowButton={ACCOUNT_EXISTING_QUESTION}
             buttonLoadingText={CREATING_ACCOUNT_LOADING}
             navigationPage={LOGIN_PAGE_NAVIGATION as Page}
+            isRegister={true}
         />
     );
 };

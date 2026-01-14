@@ -20,6 +20,7 @@ export const LoginPage = () => {
             belowButton={NO_ACCOUNT_QUESTION}
             buttonLoadingText={LOGGING_IN_LOADING}
             navigationPage={REGISTER_PAGE_NAVIGATION as Page}
+            isRegister={false}
         />
     );
 };

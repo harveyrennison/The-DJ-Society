@@ -35,15 +35,28 @@ export const RegisterUser = async (
     }
 };
 
+export const GoogleLoginUser = async (
+    idToken: string
+): Promise<LoginResponse> => {
+    try {
+        const response = await axios.post<LoginResponse>(
+            `${BACKEND_URL}/users/google-login`,
+            { idToken }
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const LogoutUser = async (token: string): Promise<void> => {
-    // Use 'void' since the backend returns 200/no content
     try {
         await axios.post(
             `${BACKEND_URL}/users/logout`,
             {},
             {
                 headers: {
-                    "X-Authorization": token,
+                    Authorization: `Bearer ${token}`,
                 },
             }
         );

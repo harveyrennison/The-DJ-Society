@@ -3,11 +3,13 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { signInWithPopup } from "firebase/auth";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useUrlBuilder } from "../../context/NavigationContext";
 import { PasswordHelper } from "../../helpers/PasswordHelper";
@@ -15,13 +17,14 @@ import { validateAccountForm } from "../../helpers/validation";
 import { useForm } from "../../hooks/useForm";
 import type { Page } from "../../interfaces/types";
 import { AccountSection } from "../../theme/theme";
+import { auth, googleProvider } from "../../utils/firebase";
 import {
     EMAIL,
     EMAIL_ADDRESS,
     PASSWORD,
     PASSWORD_CAPATILISED,
 } from "../strings";
-import { LoginUser } from "./accountServices";
+import { GoogleLoginUser, LoginUser, RegisterUser } from "./accountServices";
 
 export interface AccountPageProps {
     title: string;
@@ -31,6 +34,7 @@ export interface AccountPageProps {
     belowButton: string;
     buttonLoadingText: string;
     navigationPage: Page;
+    isRegister?: boolean;
 }
 
 export const FormatAccountPage = ({
@@ -41,11 +45,18 @@ export const FormatAccountPage = ({
     belowButton,
     buttonLoadingText,
     navigationPage,
+    isRegister = false,
 }: AccountPageProps) => {
     const { navigate } = useUrlBuilder();
     const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const validate = useCallback(
+        (values: { email: string; password: string }) =>
+            validateAccountForm(values.email, values.password),
+        []
+    );
+
     const {
         formData,
         formErrors,
@@ -54,9 +65,7 @@ export const FormatAccountPage = ({
         handleBlur,
         touched,
         touchAll,
-    } = useForm({ email: "", password: "" }, (values) =>
-        validateAccountForm(values.email, values.password)
-    );
+    } = useForm({ email: "", password: "" }, validate);
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -71,7 +80,9 @@ export const FormatAccountPage = ({
         setIsLoading(true);
 
         try {
-            const data = await LoginUser(formData);
+            const data = isRegister
+                ? await RegisterUser(formData)
+                : await LoginUser(formData);
 
             if (data.firebaseToken && data.userId) {
                 await login(data.firebaseToken, data.userId);
@@ -89,6 +100,32 @@ export const FormatAccountPage = ({
                     general: "An unexpected error occurred. Please try again.",
                 });
             }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const idToken = await result.user.getIdToken();
+
+            const data = await GoogleLoginUser(idToken);
+
+            if (data.firebaseToken && data.userId) {
+                await login(data.firebaseToken, data.userId);
+                navigate("home");
+            } else {
+                setFormErrors({
+                    general: "Incomplete data received from server.",
+                });
+            }
+        } catch (error: any) {
+            console.error("Google sign-in error:", error);
+            setFormErrors({
+                general: "Google sign-in failed. Please try again.",
+            });
         } finally {
             setIsLoading(false);
         }
@@ -192,6 +229,34 @@ export const FormatAccountPage = ({
                                         : largeButtonText}
                                 </Button>
                             </Stack>
+
+                            <Box sx={{ my: 3 }}>
+                                <Divider sx={{ my: 2 }}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
+                                        or
+                                    </Typography>
+                                </Divider>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    fullWidth
+                                    onClick={handleGoogleSignIn}
+                                    disabled={isLoading}
+                                    sx={{
+                                        borderColor: "#4285f4",
+                                        color: "#4285f4",
+                                        "&:hover": {
+                                            borderColor: "#3367d6",
+                                            backgroundColor: "#f8f9fa",
+                                        },
+                                    }}
+                                >
+                                    Continue with Google
+                                </Button>
+                            </Box>
                         </Box>
 
                         <Box textAlign="center" mt={3}>
