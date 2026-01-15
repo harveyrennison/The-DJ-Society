@@ -116,6 +116,7 @@ export const SettingsPage = () => {
                     >
                         {USER_SETTINGS}
                     </Typography>
+                    
                     <List disablePadding>
                         {SETTINGS_MENU_ITEMS.map((item) => (
                             <ListItemButton

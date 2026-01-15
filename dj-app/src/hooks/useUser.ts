@@ -32,6 +32,7 @@ export const useUser = () => {
         if (!firebaseUser || !databaseUserId) {
             setUserData(null);
             setIsLoading(false);
+            setIsError(false);
             localStorage.removeItem("dbUser");
             if (!authLoading) setIsLoading(false);
             return;
@@ -53,10 +54,11 @@ export const useUser = () => {
 
                 fetchedUserIdRef.current = databaseUserId;
             } catch (error: any) {
-                console.error("Axios Error:", error.message);
-                setIsError(true);
-                setUserData(null);
-                fetchedUserIdRef.current = null;
+                if (!error.response || error.response.status >= 500) {
+                    setIsError(true);
+                } else if (error.response.status === 401) {
+                    console.warn("Unauthorized: Token might be refreshing...");
+                }
             } finally {
                 setIsLoading(false);
             }
