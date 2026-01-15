@@ -1,4 +1,10 @@
-import { useEffect, useState, type ChangeEvent, type FocusEvent } from "react";
+import {
+    useEffect,
+    useRef,
+    useState,
+    type ChangeEvent,
+    type FocusEvent,
+} from "react";
 
 export const useForm = <T extends Record<string, any>>(
     initialState: T,
@@ -8,12 +14,19 @@ export const useForm = <T extends Record<string, any>>(
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+    const validateRef = useRef(validate);
     useEffect(() => {
-        if (validate) {
-            const errors = validate(formData);
-            setFormErrors(errors);
+        validateRef.current = validate;
+    }, [validate]);
+
+    useEffect(() => {
+        if (validateRef.current) {
+            const errors = validateRef.current(formData);
+            if (JSON.stringify(errors) !== JSON.stringify(formErrors)) {
+                setFormErrors(errors);
+            }
         }
-    }, [formData, validate]);
+    }, [formData]);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

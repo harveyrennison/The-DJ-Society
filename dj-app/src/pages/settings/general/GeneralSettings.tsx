@@ -10,10 +10,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useImageUpload } from "../../../helpers/useImageUpload";
 import { validateGeneralSettings } from "../../../helpers/validation";
 import { useForm } from "../../../hooks/useForm";
+import type { User } from "../../../interfaces/userTypes";
+import { UpdateUser } from "../../account/accountServices";
 import {
     DATE_OF_BIRTH,
     DEFAULT_IMAGE_ALLOWED_TYPES,
@@ -27,14 +29,26 @@ import {
 } from "../../strings";
 
 interface GeneralSettingsProps {
-    onRegisterSave: (fn: () => Promise<void>) => void;
+    user: User;
+    onRegisterSave: (fn: () => Promise<void>, allowed: boolean) => void;
     isSavingChanges: boolean;
 }
 
 export const GeneralSettings = ({
+    user,
     onRegisterSave,
     isSavingChanges,
 }: GeneralSettingsProps) => {
+    const initialValues = useMemo(
+        () => ({
+            firstName: user.firstName ?? null,
+            lastName: user.lastName ?? null,
+            email: user.email ?? null,
+            dateOfBirth: user.dateOfBirth ?? null,
+        }),
+        [user.firstName, user.lastName, user.email, user.dateOfBirth]
+    );
+
     const {
         previewUrl,
         selectedFile,
@@ -59,21 +73,25 @@ export const GeneralSettings = ({
         handleBlur,
         touched,
         touchAll,
-    } = useForm(
-        {
-            firstName: "Zeniath",
-            lastName: "Producer",
-            email: "zeniath@djsociety.com",
-            dob: "1995-01-01",
-        },
-        (values) =>
-            validateGeneralSettings(
-                values.firstName,
-                values.lastName,
-                values.email,
-                values.dob
-            )
+    } = useForm(initialValues, (values) =>
+        validateGeneralSettings(
+            values.email,
+            values.firstName,
+            values.lastName,
+            values.dateOfBirth
+        )
     );
+
+    const isDirty = useMemo(() => {
+        return (
+            (formData.firstName ?? null) !== (user.firstName ?? null) ||
+            (formData.lastName ?? null) !== (user.lastName ?? null) ||
+            (formData.email ?? null) !== (user.email ?? null) ||
+            (formData.dateOfBirth ?? null) !== (user.dateOfBirth ?? null)
+        );
+    }, [formData, user]);
+
+    const isValid = Object.keys(formErrors).length === 0;
 
     const handleUpdate = async () => {
         const errors = touchAll();
@@ -81,25 +99,26 @@ export const GeneralSettings = ({
         if (Object.keys(errors).length > 0) return;
 
         try {
-            if (selectedFile) {
-                console.log("Uploading file:", selectedFile.name);
-            }
-            console.log("Saving General Info...", formData);
+            await UpdateUser(user.userId, formData);
+            const updatedUser = { ...user, ...formData };
+            localStorage.setItem("dbUser", JSON.stringify(updatedUser));
+            console.log("Saved and Cached!");
         } catch (error) {
             setFormErrors({
                 form: "Failed to save changes. Please try again.",
             });
+            throw error;
         }
     };
 
     const saveRef = useRef(handleUpdate);
     useEffect(() => {
         saveRef.current = handleUpdate;
-    });
+    }, [handleUpdate]);
 
     useEffect(() => {
-        onRegisterSave(async () => await saveRef.current());
-    }, [onRegisterSave]);
+        onRegisterSave(async () => await saveRef.current(), isDirty && isValid);
+    }, [onRegisterSave, isDirty, isValid]);
 
     return (
         <Stack spacing={4}>
@@ -201,7 +220,7 @@ export const GeneralSettings = ({
                             fullWidth
                             name="firstName"
                             label={FIRST_NAME}
-                            value={formData.firstName}
+                            value={formData.firstName || ""}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={touched.firstName && !!formErrors.firstName}
@@ -214,7 +233,7 @@ export const GeneralSettings = ({
                             fullWidth
                             name="lastName"
                             label={LAST_NAME}
-                            value={formData.lastName}
+                            value={formData.lastName || ""}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={touched.lastName && !!formErrors.lastName}
@@ -227,7 +246,7 @@ export const GeneralSettings = ({
                         label={EMAIL_ADDRESS}
                         name="email"
                         required
-                        value={formData.email}
+                        value={formData.email || ""}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         error={touched.email && !!formErrors.email}
@@ -237,13 +256,17 @@ export const GeneralSettings = ({
                     <DatePicker
                         label={DATE_OF_BIRTH}
                         format="DD/MM/YYYY"
-                        value={formData.dob ? dayjs(formData.dob) : null}
+                        value={
+                            formData.dateOfBirth
+                                ? dayjs(formData.dateOfBirth)
+                                : null
+                        }
                         onChange={(newValue: Dayjs | null) => {
                             setFieldValue(
-                                "dob",
+                                "dateOfBirth",
                                 newValue && newValue.isValid()
                                     ? newValue.format("YYYY-MM-DD")
-                                    : ""
+                                    : null
                             );
                         }}
                         maxDate={dayjs()}
@@ -255,9 +278,13 @@ export const GeneralSettings = ({
                                 fullWidth: true,
                                 name: "dob",
                                 onBlur: (e: any) => handleBlur(e),
-                                error: touched.dob && !!formErrors.dob,
+                                error:
+                                    touched.dateOfBirth &&
+                                    !!formErrors.dateOfBirth,
                                 helperText:
-                                    (touched.dob && formErrors.dob) || " ",
+                                    (touched.dateOfBirth &&
+                                        formErrors.dateOfBirth) ||
+                                    " ",
                                 disabled: isSavingChanges,
                             },
                         }}

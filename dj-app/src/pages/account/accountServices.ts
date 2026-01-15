@@ -1,6 +1,5 @@
-// src/services/loginService.ts (or wherever you prefer to place services)
-
 import axios from "axios";
+import api from "../../api/axiosInstance";
 import { BACKEND_URL } from "../../constants/strings";
 import type {
     LoginRequest,
@@ -49,19 +48,25 @@ export const GoogleLoginUser = async (
     }
 };
 
-export const LogoutUser = async (token: string): Promise<void> => {
+export const LogoutUser = async (): Promise<void> => {
     try {
-        await axios.post(
-            `${BACKEND_URL}/users/logout`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+        await api.post("/users/logout", {});
         return;
     } catch (error) {
+        throw error;
+    }
+};
+
+export const UpdateUser = async (
+    userId: string,
+    formData: any
+): Promise<void> => {
+    try {
+        await api.patch(`/users/${userId}`, formData);
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            console.error("Backend Validation Error:", error.response.data);
+        }
         throw error;
     }
 };

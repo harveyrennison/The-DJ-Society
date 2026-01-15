@@ -7,13 +7,17 @@ import { useEffect, useRef, useState } from "react";
 import { PasswordHelper } from "../../../helpers/PasswordHelper";
 import { validateNewPasswordForm } from "../../../helpers/validation";
 import { useForm } from "../../../hooks/useForm";
+import type { User } from "../../../interfaces/userTypes";
 import { SECURITY, UPDATE_PASSWORD_MESSAGE } from "../../strings";
 
 interface SecuritySettingsProps {
-    onRegisterSave: (fn: () => Promise<void>) => void;
+    user: User;
+    onRegisterSave: (fn: () => Promise<void>, allowed: boolean) => void;
     isSavingChanges: boolean;
 }
+
 export const SecuritySettings = ({
+    user,
     onRegisterSave,
     isSavingChanges,
 }: SecuritySettingsProps) => {
@@ -100,7 +104,7 @@ export const SecuritySettings = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.newPassword && !!formErrors.newPassword}
-                    helperText={touched.newPassword && formErrors.newPassword}  
+                    helperText={touched.newPassword && formErrors.newPassword}
                     disabled={isSavingChanges}
                     slotProps={{
                         input: {

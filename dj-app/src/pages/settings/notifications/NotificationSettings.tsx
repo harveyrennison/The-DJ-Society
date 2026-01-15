@@ -1,12 +1,15 @@
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import type { User } from "../../../interfaces/userTypes";
 
 interface NotificationSettingsProps {
-    onRegisterSave: (fn: () => Promise<void>) => void;
-    isSaving: boolean;
+    user: User;
+    onRegisterSave: (fn: () => Promise<void>, allowed: boolean) => void;
+    isSavingChanges: boolean;
 }
 
 export const NotificationSettings = ({
+    user,
     onRegisterSave,
     isSavingChanges,
 }: NotificationSettingsProps) => {

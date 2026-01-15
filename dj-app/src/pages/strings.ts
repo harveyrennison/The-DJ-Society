@@ -63,3 +63,6 @@ export const DEFAULT_IMAGE_ALLOWED_TYPES = [
 ];
 
 export const SAVING_LOADING = "Saving...";
+
+export const CONTINUE_WITH_GOOGLE = "Continue with Google";
+export const OR = "Or";

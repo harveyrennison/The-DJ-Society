@@ -1,3 +1,4 @@
+import GoogleIcon from "@mui/icons-material/Google";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -19,8 +20,10 @@ import type { Page } from "../../interfaces/types";
 import { AccountSection } from "../../theme/theme";
 import { auth, googleProvider } from "../../utils/firebase";
 import {
+    CONTINUE_WITH_GOOGLE,
     EMAIL,
     EMAIL_ADDRESS,
+    OR,
     PASSWORD,
     PASSWORD_CAPATILISED,
 } from "../strings";
@@ -131,6 +134,8 @@ export const FormatAccountPage = ({
         }
     };
 
+    /* ... existing logic and state ... */
+
     return (
         <AccountSection>
             <Box
@@ -153,11 +158,37 @@ export const FormatAccountPage = ({
                             variant="body2"
                             align="center"
                             color="text.secondary"
-                            mb={2}
+                            mb={3}
                         >
                             {subheader}
                         </Typography>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            fullWidth
+                            onClick={handleGoogleSignIn}
+                            disabled={isLoading}
+                            startIcon={<GoogleIcon />} // 2. Added Google Icon
+                            sx={{
+                                borderColor: "#4285f4",
+                                color: "#4285f4",
+                                mb: 3, // Added margin bottom
+                                "&:hover": {
+                                    borderColor: "#3367d6",
+                                    backgroundColor: "#f8f9fa",
+                                },
+                            }}
+                        >
+                            {CONTINUE_WITH_GOOGLE}
+                        </Button>
 
+                        <Divider sx={{ mb: 3 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                {OR}
+                            </Typography>
+                        </Divider>
+
+                        {/* 3. Email/Password Form now follows the divider */}
                         <Box
                             component="form"
                             onSubmit={handleSubmit}
@@ -229,34 +260,6 @@ export const FormatAccountPage = ({
                                         : largeButtonText}
                                 </Button>
                             </Stack>
-
-                            <Box sx={{ my: 3 }}>
-                                <Divider sx={{ my: 2 }}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                    >
-                                        or
-                                    </Typography>
-                                </Divider>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    fullWidth
-                                    onClick={handleGoogleSignIn}
-                                    disabled={isLoading}
-                                    sx={{
-                                        borderColor: "#4285f4",
-                                        color: "#4285f4",
-                                        "&:hover": {
-                                            borderColor: "#3367d6",
-                                            backgroundColor: "#f8f9fa",
-                                        },
-                                    }}
-                                >
-                                    Continue with Google
-                                </Button>
-                            </Box>
                         </Box>
 
                         <Box textAlign="center" mt={3}>

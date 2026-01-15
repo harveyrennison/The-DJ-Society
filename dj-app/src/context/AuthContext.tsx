@@ -26,12 +26,26 @@ export const dbInstance: Firestore = getFirestore(firebaseApp);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const saved = localStorage.getItem("firebaseUser");
+        return saved ? JSON.parse(saved) : null;
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(authInstance, (currentUser) => {
-            setUser(currentUser);
+            if (currentUser) {
+                setUser(currentUser);
+                localStorage.setItem(
+                    "firebaseUser",
+                    JSON.stringify(currentUser)
+                );
+            } else {
+                setUser(null);
+                localStorage.removeItem("firebaseUser");
+                localStorage.removeItem("dbUser");
+                localStorage.removeItem("databaseUserId");
+            }
             setLoading(false);
         });
 
@@ -57,6 +71,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             await signOut(authInstance);
             localStorage.removeItem("databaseUserId");
+            localStorage.removeItem("firebaseUser");
+            localStorage.removeItem("dbUser");
+            setUser(null);
         } catch (error) {
             console.error(error);
         }

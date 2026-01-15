@@ -16,7 +16,7 @@ import {
     PASSWORD_LENGTH,
 } from "../constants/strings";
 
-export const validateDOB = (dob: string): string | null => {
+export const validateDOB = (dob: string | null): string | null => {
     if (!dob) return null;
 
     const birthDate = new Date(dob);
@@ -94,18 +94,18 @@ export const validateNewPasswordForm = (
 };
 
 export const validateGeneralSettings = (
-    firstName: string,
-    lastName: string,
     email: string,
-    dob: string
+    firstName?: string | null,
+    lastName?: string | null,
+    dateOfBirth?: string | null
 ): Record<string, string> => {
     const errors: Record<string, string> = {};
 
-    if (firstName.trim() && !NAME_REGEX.test(firstName.trim())) {
+    if (firstName?.trim() && !NAME_REGEX.test(firstName?.trim())) {
         errors.firstName = ERR_NAME_INVALID;
     }
 
-    if (lastName.trim() && !NAME_REGEX.test(lastName.trim())) {
+    if (lastName?.trim() && !NAME_REGEX.test(lastName?.trim())) {
         errors.lastName = ERR_NAME_INVALID;
     }
 
@@ -115,7 +115,7 @@ export const validateGeneralSettings = (
         errors.email = ERR_EMAIL_INVALID;
     }
 
-    const dobError = validateDOB(dob);
+    const dobError = validateDOB(dateOfBirth ?? null);
     if (dobError) {
         errors.dob = dobError;
     }

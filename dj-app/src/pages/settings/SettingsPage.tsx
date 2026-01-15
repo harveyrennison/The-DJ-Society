@@ -8,10 +8,14 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { GradientText, SettingsSection } from "../../theme/theme";
 
+import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
+import { useSnackbar } from "../../hooks/useSnackbar";
+import { useUser } from "../../hooks/useUser";
 import {
     MANAGE_ACCOUNT_SETTINGS,
     SAVE_CHANGES,
@@ -24,56 +28,59 @@ import { NotificationSettings } from "./notifications/NotificationSettings";
 import { SecuritySettings } from "./security/SecuritySettings";
 import { SETTINGS_MENU_ITEMS } from "./tab/SettingsConfig";
 import type { SettingsTab } from "./tab/settingsTypes";
+
 export const SettingsPage = () => {
+    const { user, isLoading } = useUser();
+    const { snackbar, showSnackbar, hideSnackbar } = useSnackbar();
     const [activeSection, setActiveSection] = useState<SettingsTab>("general");
     const [isSaving, setIsSaving] = useState(false);
-    const [handleSaveTrigger, setHandleSaveTrigger] = useState<
-        () => Promise<void>
-    >(() => async () => {});
+    const [canSave, setCanSave] = useState(false);
+
+    const saveTriggerRef = useRef<() => Promise<void>>(async () => {});
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            await handleSaveTrigger();
-        } catch (error) {
+            await saveTriggerRef.current();
+            showSnackbar("Account updated successfully!", "success");
+        } catch (error: any) {
+            const errorMsg =
+                error.response?.data?.error ||
+                "Failed to save account changes.";
+            showSnackbar(errorMsg, "error");
             console.error("Save failed:", error);
         } finally {
             setIsSaving(false);
         }
     };
 
+    const registerSave = useCallback(
+        (fn: () => Promise<void>, allowed: boolean) => {
+            saveTriggerRef.current = fn;
+            setCanSave(allowed);
+        },
+        []
+    );
+
     const renderSection = () => {
+        if (isLoading && !user) return <CircularProgress />;
+        if (!user) return null;
+
+        const props = {
+            user,
+            onRegisterSave: registerSave,
+            isSavingChanges: isSaving,
+        };
+
         switch (activeSection) {
             case "general":
-                return (
-                    <GeneralSettings
-                        onRegisterSave={setHandleSaveTrigger}
-                        isSavingChanges={isSaving}
-                    />
-                );
-
+                return <GeneralSettings {...props} />;
             case "security":
-                return (
-                    <SecuritySettings
-                        onRegisterSave={setHandleSaveTrigger}
-                        isSavingChanges={isSaving}
-                    />
-                );
+                return <SecuritySettings {...props} />;
             case "notifications":
-                return (
-                    <NotificationSettings
-                        onRegisterSave={setHandleSaveTrigger}
-                        isSavingChanges={isSaving}
-                    />
-                );
+                return <NotificationSettings {...props} />;
             default:
-                return (
-                    <GeneralSettings
-                        onRegisterSave={setHandleSaveTrigger}
-                        isSavingChanges={isSaving}
-                    />
-                );
+                return <GeneralSettings {...props} />;
         }
     };
 
@@ -114,6 +121,7 @@ export const SettingsPage = () => {
                             <ListItemButton
                                 key={item.label}
                                 selected={activeSection === item.value}
+                                disabled={isSaving}
                                 onClick={() => setActiveSection(item.value)}
                                 sx={{
                                     borderRadius: "12px",
@@ -165,7 +173,7 @@ export const SettingsPage = () => {
                                 variant="contained"
                                 size="large"
                                 onClick={handleSave}
-                                disabled={isSaving}
+                                disabled={isSaving || !canSave}
                                 endIcon={
                                     isSaving && (
                                         <CircularProgress
@@ -186,6 +194,20 @@ export const SettingsPage = () => {
                     </Container>
                 </Box>
             </Stack>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={hideSnackbar}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={hideSnackbar}
+                    severity={snackbar.severity}
+                    variant="filled"
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </SettingsSection>
     );
 };
