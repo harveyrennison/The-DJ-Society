@@ -31,11 +31,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return saved ? JSON.parse(saved) : null;
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(authInstance, (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
+                setError(false);
                 localStorage.setItem(
                     "firebaseUser",
                     JSON.stringify(currentUser)
@@ -51,18 +53,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (initialAuthToken && !authInstance.currentUser) {
             signInWithCustomToken(authInstance, initialAuthToken).catch(
-                console.error
+                (err) => {
+                    console.error(err);
+                    setError(true);
+                    setLoading(false);
+                }
             );
+        } else {
+            setLoading(false);
         }
 
         return () => unsubscribe();
     }, []);
 
     const login = async (token: string, databaseUserId: string) => {
+        setError(false);
         try {
             await signInWithCustomToken(authInstance, token);
             localStorage.setItem("databaseUserId", databaseUserId);
         } catch (error) {
+            setError(true);
             throw new Error("Authentication failed");
         }
     };
@@ -83,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         userId: user?.uid || null,
         loading,
+        error,
         login,
         logout,
     };

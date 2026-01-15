@@ -3,18 +3,29 @@ import api from "../api/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 
 export const useUser = () => {
-    const { user: firebaseUser, loading: authLoading } = useAuth();
+    const {
+        user: firebaseUser,
+        loading: authLoading,
+        error: authError,
+    } = useAuth();
     const [userData, setUserData] = useState<any>(() => {
         const saved = localStorage.getItem("dbUser");
         return saved ? JSON.parse(saved) : null;
     });
     const [isLoading, setIsLoading] = useState(true);
+    const [isError, setIsError] = useState(false);
     const fetchedUserIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         const databaseUserId = localStorage.getItem("databaseUserId");
 
+        if (authError) {
+            setIsLoading(false);
+            return;
+        }
+
         if (authLoading) {
+            if (!authLoading) setIsLoading(false);
             return;
         }
 
@@ -22,10 +33,10 @@ export const useUser = () => {
             setUserData(null);
             setIsLoading(false);
             localStorage.removeItem("dbUser");
+            if (!authLoading) setIsLoading(false);
             return;
         }
 
-        // Only fetch if we haven't fetched this user yet
         if (fetchedUserIdRef.current === databaseUserId) {
             return;
         }
@@ -43,6 +54,7 @@ export const useUser = () => {
                 fetchedUserIdRef.current = databaseUserId;
             } catch (error: any) {
                 console.error("Axios Error:", error.message);
+                setIsError(true);
                 setUserData(null);
                 fetchedUserIdRef.current = null;
             } finally {
@@ -52,5 +64,5 @@ export const useUser = () => {
         fetchAdditionalUserData();
     }, [firebaseUser?.uid, authLoading]);
 
-    return { user: userData, isLoading, uid: firebaseUser?.uid };
+    return { user: userData, isLoading, isError, uid: firebaseUser?.uid };
 };

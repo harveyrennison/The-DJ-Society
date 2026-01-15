@@ -30,7 +30,7 @@ import { SETTINGS_MENU_ITEMS } from "./tab/SettingsConfig";
 import type { SettingsTab } from "./tab/settingsTypes";
 
 export const SettingsPage = () => {
-    const { user, isLoading } = useUser();
+    const { user, isLoading, isError } = useUser();
     const { snackbar, showSnackbar, hideSnackbar } = useSnackbar();
     const [activeSection, setActiveSection] = useState<SettingsTab>("general");
     const [isSaving, setIsSaving] = useState(false);
@@ -173,7 +173,7 @@ export const SettingsPage = () => {
                                 variant="contained"
                                 size="large"
                                 onClick={handleSave}
-                                disabled={isSaving || !canSave}
+                                disabled={isSaving || !canSave || isError}
                                 endIcon={
                                     isSaving && (
                                         <CircularProgress
@@ -190,7 +190,44 @@ export const SettingsPage = () => {
                                 {isSaving ? SAVING_LOADING : SAVE_CHANGES}
                             </Button>
                         </Stack>
-                        {renderSection()}
+                        {isError ? (
+                            <Box
+                                sx={{
+                                    textAlign: "center",
+                                    py: 8,
+                                    px: 2,
+                                    bgcolor: alpha("#ff1744", 0.05),
+                                    borderRadius: "16px",
+                                    border: "1px dashed",
+                                    borderColor: alpha("#ff1744", 0.3),
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    color="text.primary"
+                                    gutterBottom
+                                >
+                                    Connection Lost
+                                </Typography>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ mb: 3 }}
+                                >
+                                    The server is unreachable. Please check your
+                                    internet connection.
+                                </Typography>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => window.location.reload()}
+                                    sx={{ borderRadius: "8px" }}
+                                >
+                                    Try Again
+                                </Button>
+                            </Box>
+                        ) : (
+                            renderSection()
+                        )}
                     </Container>
                 </Box>
             </Stack>
